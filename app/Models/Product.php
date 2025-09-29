@@ -6,6 +6,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class Product extends Model
@@ -31,28 +33,28 @@ final class Product extends Model
     ];
 
     // Relationships
-    public function category()
+    public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
-    public function supplier()
+    public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
     }
 
-    public function stocks()
+    public function stocks(): HasMany
     {
         return $this->hasMany(Stock::class);
     }
 
-    public function batches()
+    public function batches(): HasMany
     {
         return $this->hasMany(Batch::class);
     }
 
     // Helper methods
-    public function checkAvailability(): bool
+    public function isAvailable(): bool
     {
         return $this->stocks()->sum('quantity') > 0;
     }

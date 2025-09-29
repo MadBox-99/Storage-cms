@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 final class ReturnLine extends Model
 {
@@ -22,12 +23,12 @@ final class ReturnLine extends Model
         'note',
     ];
 
-    public function returnDelivery()
+    public function returnDelivery(): BelongsTo
     {
         return $this->belongsTo(ReturnDelivery::class);
     }
 
-    public function product()
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }

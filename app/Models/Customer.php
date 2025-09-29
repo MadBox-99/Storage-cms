@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class Customer extends Model
@@ -26,7 +27,7 @@ final class Customer extends Model
     ];
 
     // Relationships
-    public function orders()
+    public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
     }

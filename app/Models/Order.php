@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\OrderStatus;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class Order extends Model
@@ -27,17 +30,17 @@ final class Order extends Model
     ];
 
     // Relationships
-    public function customer()
+    public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
     }
 
-    public function supplier()
+    public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
     }
 
-    public function orderLines()
+    public function orderLines(): HasMany
     {
         return $this->hasMany(OrderLine::class);
     }
@@ -74,12 +77,12 @@ final class Order extends Model
 
     public function process(): void
     {
-        $this->update(['status' => 'PROCESSING']);
+        $this->update(['status' => OrderStatus::PROCESSING]);
     }
 
     public function cancel(): void
     {
-        $this->update(['status' => 'CANCELLED']);
+        $this->update(['status' => OrderStatus::CANCELLED]);
     }
 
     public function getTrackingNumber(): string
@@ -94,6 +97,7 @@ final class Order extends Model
             'delivery_date' => 'date',
             'total_amount' => 'decimal:2',
             'shipping_address' => 'array',
+            'status' => OrderStatus::class,
         ];
     }
 }

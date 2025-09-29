@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\DB;
 
 final class StockMovement extends Model
 {
@@ -30,77 +29,56 @@ final class StockMovement extends Model
     ];
 
     // Relationships
-    public function product()
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }
 
-    public function sourceWarehouse()
+    public function sourceWarehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class, 'source_warehouse_id');
     }
 
-    public function targetWarehouse()
+    public function targetWarehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class, 'target_warehouse_id');
     }
 
-    public function batch()
+    public function batch(): BelongsTo
     {
         return $this->belongsTo(Batch::class);
     }
 
-    public function executor()
+    public function executor(): BelongsTo
     {
         return $this->belongsTo(Employee::class, 'executed_by');
     }
 
+    // Query scopes
+    public function scopePending($query)
+    {
+        return $query->where('status', 'PENDING');
+    }
+
+    public function scopeCompleted($query)
+    {
+        return $query->where('status', 'COMPLETED');
+    }
+
     // Helper methods
-    public function execute(): void
+    public function isPending(): bool
     {
-        DB::transaction(function (): void {
-            // Validate movement
-            if (! $this->validate()) {
-                throw new Exception('Invalid stock movement');
-            }
-
-            // Update source warehouse stock
-            if ($this->source_warehouse_id) {
-                $sourceStock = Stock::query()->where('product_id', $this->product_id)
-                    ->where('warehouse_id', $this->source_warehouse_id)
-                    ->first();
-
-                if ($sourceStock && $sourceStock->getAvailableQuantity() >= $this->quantity) {
-                    $sourceStock->decrement('quantity', $this->quantity);
-                }
-            }
-
-            // Update target warehouse stock
-            if ($this->target_warehouse_id) {
-                $this->increment('quantity', $this->quantity);
-                Stock::query()->updateOrCreate([
-                    'product_id' => $this->product_id,
-                    'warehouse_id' => $this->target_warehouse_id,
-                ], []);
-            }
-
-            $this->update([
-                'status' => 'COMPLETED',
-                'executed_at' => now(),
-            ]);
-        });
+        return $this->status === 'PENDING';
     }
 
-    public function cancel(): void
+    public function isCompleted(): bool
     {
-        $this->update(['status' => 'CANCELLED']);
+        return $this->status === 'COMPLETED';
     }
 
-    public function validate(): bool
+    public function isCancelled(): bool
     {
-        // Basic validation
-        return $this->quantity > 0 &&
-               ($this->source_warehouse_id || $this->target_warehouse_id);
+        return $this->status === 'CANCELLED';
     }
 
     protected function casts(): array

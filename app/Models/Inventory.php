@@ -6,6 +6,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class Inventory extends Model
@@ -24,17 +26,17 @@ final class Inventory extends Model
         'notes',
     ];
 
-    public function warehouse()
+    public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class);
     }
 
-    public function conductedBy()
+    public function conductedBy(): BelongsTo
     {
         return $this->belongsTo(Employee::class, 'conducted_by');
     }
 
-    public function inventoryLines()
+    public function inventoryLines(): HasMany
     {
         return $this->hasMany(InventoryLine::class);
     }

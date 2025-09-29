@@ -6,6 +6,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class Receipt extends Model
@@ -24,22 +26,22 @@ final class Receipt extends Model
         'notes',
     ];
 
-    public function order()
+    public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
     }
 
-    public function warehouse()
+    public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class);
     }
 
-    public function receivedBy()
+    public function receivedBy(): BelongsTo
     {
         return $this->belongsTo(Employee::class, 'received_by');
     }
 
-    public function receiptLines()
+    public function receiptLines(): HasMany
     {
         return $this->hasMany(ReceiptLine::class);
     }
