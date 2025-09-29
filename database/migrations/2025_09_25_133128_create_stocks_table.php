@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Models\Batch;
+use App\Models\Product;
+use App\Models\Warehouse;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,13 +18,13 @@ return new class() extends Migration
     {
         Schema::create('stocks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->constrained();
-            $table->foreignId('warehouse_id')->constrained();
+            $table->foreignIdFor(Product::class)->constrained();
+            $table->foreignIdFor(Warehouse::class)->constrained();
             $table->integer('quantity')->default(0);
             $table->integer('reserved_quantity')->default(0);
             $table->integer('minimum_stock')->default(0);
             $table->integer('maximum_stock')->default(0);
-            $table->foreignId('batch_id')->nullable()->constrained();
+            $table->foreignIdFor(Batch::class)->nullable()->constrained();
             $table->string('status', 50)->default('AVAILABLE');
             $table->timestamps();
             $table->softDeletes();

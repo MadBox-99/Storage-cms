@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Models\Employee;
+use App\Models\Warehouse;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,8 +18,8 @@ return new class() extends Migration
         Schema::create('inventories', function (Blueprint $table) {
             $table->id();
             $table->string('inventory_number', 100)->unique();
-            $table->foreignId('warehouse_id')->constrained();
-            $table->foreignId('conducted_by')->constrained('employees');
+            $table->foreignIdFor(Warehouse::class)->constrained();
+            $table->foreignIdFor(Employee::class, 'conducted_by')->constrained();
             $table->date('inventory_date');
             $table->string('status', 50)->default('IN_PROGRESS');
             $table->string('type', 50);

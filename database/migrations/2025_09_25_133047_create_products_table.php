@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Models\Category;
+use App\Models\Supplier;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -22,8 +24,8 @@ return new class() extends Migration
             $table->string('unit_of_measure', 50);
             $table->decimal('weight', 8, 2)->nullable();
             $table->json('dimensions')->nullable();
-            $table->foreignId('category_id')->constrained();
-            $table->foreignId('supplier_id')->constrained();
+            $table->foreignIdFor(Category::class)->constrained();
+            $table->foreignIdFor(Supplier::class)->constrained();
             $table->integer('min_stock')->default(0);
             $table->integer('max_stock')->default(0);
             $table->integer('reorder_point')->default(0);

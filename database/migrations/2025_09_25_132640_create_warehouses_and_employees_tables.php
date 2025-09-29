@@ -13,8 +13,14 @@ return new class() extends Migration
      */
     public function up(): void
     {
+
+        // Most hozzáadjuk a foreign key-eket mindkét táblához
         Schema::table('warehouses', function (Blueprint $table) {
             $table->foreign('manager_id')->references('id')->on('employees')->nullOnDelete();
+        });
+
+        Schema::table('employees', function (Blueprint $table) {
+            $table->foreign('warehouse_id')->references('id')->on('warehouses')->nullOnDelete();
         });
     }
 
@@ -23,8 +29,17 @@ return new class() extends Migration
      */
     public function down(): void
     {
+        // Először töröljük a foreign key-eket
+        Schema::table('employees', function (Blueprint $table) {
+            $table->dropForeign(['warehouse_id']);
+        });
+
         Schema::table('warehouses', function (Blueprint $table) {
             $table->dropForeign(['manager_id']);
         });
+
+        // Aztán töröljük a táblákat
+        Schema::dropIfExists('employees');
+        Schema::dropIfExists('warehouses');
     }
 };

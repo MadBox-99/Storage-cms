@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Models\Employee;
+use App\Models\Order;
+use App\Models\Warehouse;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,9 +19,9 @@ return new class() extends Migration
         Schema::create('receipts', function (Blueprint $table) {
             $table->id();
             $table->string('receipt_number', 100)->unique();
-            $table->foreignId('order_id')->nullable()->constrained();
-            $table->foreignId('warehouse_id')->constrained();
-            $table->foreignId('received_by')->constrained('employees');
+            $table->foreignIdFor(Order::class)->nullable()->constrained();
+            $table->foreignIdFor(Warehouse::class)->constrained();
+            $table->foreignIdFor(Employee::class, 'received_by')->constrained();
             $table->date('receipt_date');
             $table->string('status', 50)->default('PENDING');
             $table->decimal('total_amount', 10, 2)->default(0);

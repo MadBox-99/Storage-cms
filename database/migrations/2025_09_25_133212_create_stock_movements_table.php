@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Models\Batch;
+use App\Models\Employee;
+use App\Models\Product;
+use App\Models\Warehouse;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,13 +21,13 @@ return new class() extends Migration
             $table->id();
             $table->string('movement_number', 100)->unique();
             $table->string('type', 50); // INBOUND, OUTBOUND, TRANSFER, ADJUSTMENT, etc.
-            $table->foreignId('source_warehouse_id')->nullable()->constrained('warehouses');
-            $table->foreignId('target_warehouse_id')->nullable()->constrained('warehouses');
-            $table->foreignId('product_id')->constrained();
+            $table->foreignIdFor(Warehouse::class, 'source_warehouse_id')->nullable()->constrained('warehouses');
+            $table->foreignIdFor(Warehouse::class, 'target_warehouse_id')->nullable()->constrained('warehouses');
+            $table->foreignIdFor(Product::class, 'product_id')->constrained();
             $table->integer('quantity');
-            $table->foreignId('batch_id')->nullable()->constrained();
+            $table->foreignIdFor(Batch::class, 'batch_id')->nullable()->constrained();
             $table->string('status', 50)->default('PLANNED');
-            $table->foreignId('executed_by')->nullable()->constrained('employees');
+            $table->foreignIdFor(Employee::class, 'executed_by')->nullable()->constrained('employees');
             $table->timestamp('executed_at')->nullable();
             $table->text('reason')->nullable();
             $table->timestamps();

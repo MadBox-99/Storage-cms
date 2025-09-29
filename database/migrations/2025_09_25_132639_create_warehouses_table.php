@@ -20,11 +20,12 @@ return new class() extends Migration
             $table->text('address')->nullable();
             $table->string('type', 50); // MAIN, DISTRIBUTION, RETAIL, etc.
             $table->integer('capacity')->nullable();
-            $table->unsignedBigInteger('manager_id')->nullable();
+            $table->unsignedBigInteger('manager_id')->nullable(); // FK nélkül először
             $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();
 
+            $table->index(['manager_id']);
             $table->index(['is_active']);
             $table->index(['type']);
         });

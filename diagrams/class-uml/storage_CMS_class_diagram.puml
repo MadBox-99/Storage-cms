@@ -707,7 +707,8 @@ InventoryLine "1" --> "1" Inventory : belongs to
 InventoryLine "1" --> "1" Product : counts
 
 Employee "1" --> "1" User : has account
-Employee "1" --> "0..1" Warehouse : works at
+Employee "0..*" --> "0..1" Warehouse : works at
+Warehouse "0..1" --> "0..1" Employee : managed by
 Supplier "1" --> "0..*" Product : supplies
 Customer "1" --> "0..*" Order : places
 
