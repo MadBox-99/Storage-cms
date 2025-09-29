@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\ReceiptStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -72,12 +73,12 @@ final class Receipt extends Model
 
     public function confirm(): void
     {
-        $this->update(['status' => 'CONFIRMED']);
+        $this->update(['status' => ReceiptStatus::CONFIRMED]);
     }
 
     public function reject(): void
     {
-        $this->update(['status' => 'REJECTED']);
+        $this->update(['status' => ReceiptStatus::REJECTED]);
     }
 
     protected function casts(): array
@@ -85,6 +86,7 @@ final class Receipt extends Model
         return [
             'receipt_date' => 'date',
             'total_amount' => 'decimal:2',
+            'status' => ReceiptStatus::class,
         ];
     }
 }

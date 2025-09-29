@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\StockStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -86,6 +87,7 @@ final class StockMovement extends Model
         return [
             'quantity' => 'integer',
             'executed_at' => 'datetime',
+            'status' => StockStatus::class,
         ];
     }
 }

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Models\Customer;
 use App\Models\Supplier;
-use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -19,7 +19,7 @@ return new class() extends Migration
             $table->id();
             $table->string('order_number', 100)->unique();
             $table->string('type', 50); // PURCHASE, SALES, TRANSFER, RETURN
-            $table->foreignIdFor(User::class, 'customer_id')->nullable()->constrained();
+            $table->foreignIdFor(Customer::class)->nullable()->constrained();
             $table->foreignIdFor(Supplier::class)->nullable()->constrained();
             $table->string('status', 50)->default('DRAFT');
             $table->date('order_date');

@@ -20,7 +20,7 @@ it('can create an order', function (): void {
     ]);
 
     expect($order->order_number)->toBe('ORD-001');
-    expect($order->total_amount)->toBe(100.50);
+    expect($order->total_amount)->toBe('100.50'); // Database returns string for decimal
     expect($order->status)->toBe(OrderStatus::DRAFT);
 });
 
@@ -136,7 +136,7 @@ it('can refresh total amount', function (): void {
 
     $order->refreshTotal();
 
-    expect($order->fresh()->total_amount)->toBe(45.00);
+    expect($order->fresh()->total_amount)->toBe('45.00');
 });
 
 it('can add order line', function (): void {
@@ -153,7 +153,7 @@ it('can add order line', function (): void {
     $order->addLine($orderLine);
 
     expect($order->orderLines)->toHaveCount(1);
-    expect($order->fresh()->total_amount)->toBe(50.00);
+    expect($order->fresh()->total_amount)->toBe('50.00');
 });
 
 it('can remove order line', function (): void {
@@ -171,7 +171,7 @@ it('can remove order line', function (): void {
     $order->removeLine($orderLine);
 
     expect($order->orderLines)->toHaveCount(0);
-    expect($order->fresh()->total_amount)->toBe(0.00);
+    expect($order->fresh()->total_amount)->toBe('0.00');
 });
 
 it('casts shipping address to array', function (): void {

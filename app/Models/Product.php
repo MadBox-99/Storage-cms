@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\ProductStatus;
+use App\Enums\UnitType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -85,6 +87,8 @@ final class Product extends Model
             'max_stock' => 'integer',
             'reorder_point' => 'integer',
             'dimensions' => 'array',
+            'status' => ProductStatus::class,
+            'unit_of_measure' => UnitType::class,
         ];
     }
 }

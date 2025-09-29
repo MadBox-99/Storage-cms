@@ -23,19 +23,19 @@ final class OrderFactory extends Factory
     public function definition(): array
     {
         return [
-            'order_number' => 'ORD-'.$this->faker->unique()->numberBetween(10000, 99999),
-            'type' => $this->faker->randomElement(OrderType::cases()),
+            'order_number' => 'ORD-'.fake()->unique()->numberBetween(10000, 99999),
+            'type' => OrderType::SALES, // Default to sales
             'customer_id' => null,
             'supplier_id' => null,
             'status' => OrderStatus::DRAFT,
-            'order_date' => $this->faker->dateTimeBetween('-30 days', 'now'),
-            'delivery_date' => $this->faker->dateTimeBetween('now', '+30 days'),
-            'total_amount' => $this->faker->randomFloat(2, 10, 5000),
+            'order_date' => fake()->dateTimeBetween('-30 days', 'now'),
+            'delivery_date' => fake()->dateTimeBetween('now', '+30 days'),
+            'total_amount' => fake()->randomFloat(2, 10, 5000),
             'shipping_address' => [
-                'street' => $this->faker->streetAddress(),
-                'city' => $this->faker->city(),
-                'zip' => $this->faker->postcode(),
-                'country' => $this->faker->country(),
+                'street' => fake()->streetAddress(),
+                'city' => fake()->city(),
+                'zip' => fake()->postcode(),
+                'country' => fake()->country(),
             ],
         ];
     }

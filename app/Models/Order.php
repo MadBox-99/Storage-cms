@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\OrderStatus;
+use App\Enums\OrderType;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -98,6 +99,7 @@ final class Order extends Model
             'total_amount' => 'decimal:2',
             'shipping_address' => 'array',
             'status' => OrderStatus::class,
+            'type' => OrderType::class,
         ];
     }
 }

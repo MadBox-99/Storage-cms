@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\StockStatus;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -98,6 +99,7 @@ final class Stock extends Model
             'reserved_quantity' => 'integer',
             'minimum_stock' => 'integer',
             'maximum_stock' => 'integer',
+            'status' => StockStatus::class,
         ];
     }
 }
