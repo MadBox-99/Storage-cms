@@ -10,7 +10,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class Employee extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -22,10 +23,6 @@ final class Employee extends Model
         'department',
         'phone',
         'is_active',
-    ];
-
-    protected $casts = [
-        'is_active' => 'boolean',
     ];
 
     // Relationships
@@ -48,5 +45,12 @@ final class Employee extends Model
     public function hasAccess(Warehouse $warehouse): bool
     {
         return $this->warehouse_id === $warehouse->id || $this->user->is_super_admin;
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
     }
 }

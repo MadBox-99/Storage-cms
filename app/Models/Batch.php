@@ -11,7 +11,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class Batch extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'batch_number',
@@ -21,13 +22,6 @@ final class Batch extends Model
         'quantity',
         'supplier_id',
         'quality_status',
-    ];
-
-    protected $casts = [
-        'manufacture_date' => 'date',
-        'expiry_date' => 'date',
-        'serial_numbers' => 'array',
-        'quantity' => 'integer',
     ];
 
     // Relationships
@@ -70,5 +64,15 @@ final class Batch extends Model
     public function addHistoryEntry(array $entry): void
     {
         // TODO: Implement history tracking
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'manufacture_date' => 'date',
+            'expiry_date' => 'date',
+            'serial_numbers' => 'array',
+            'quantity' => 'integer',
+        ];
     }
 }

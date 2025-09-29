@@ -10,7 +10,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class Category extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -57,6 +58,7 @@ final class Category extends Model
             if ($parent->id === $category->id) {
                 return true;
             }
+
             $parent = $parent->parent;
         }
 

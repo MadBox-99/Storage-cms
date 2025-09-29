@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\DB;
 
 final class StockMovement extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'movement_number',
@@ -26,11 +27,6 @@ final class StockMovement extends Model
         'executed_by',
         'executed_at',
         'reason',
-    ];
-
-    protected $casts = [
-        'quantity' => 'integer',
-        'executed_at' => 'datetime',
     ];
 
     // Relationships
@@ -62,7 +58,7 @@ final class StockMovement extends Model
     // Helper methods
     public function execute(): void
     {
-        DB::transaction(function () {
+        DB::transaction(function (): void {
             // Validate movement
             if (! $this->validate()) {
                 throw new Exception('Invalid stock movement');
@@ -70,7 +66,7 @@ final class StockMovement extends Model
 
             // Update source warehouse stock
             if ($this->source_warehouse_id) {
-                $sourceStock = Stock::where('product_id', $this->product_id)
+                $sourceStock = Stock::query()->where('product_id', $this->product_id)
                     ->where('warehouse_id', $this->source_warehouse_id)
                     ->first();
 
@@ -81,10 +77,11 @@ final class StockMovement extends Model
 
             // Update target warehouse stock
             if ($this->target_warehouse_id) {
-                Stock::updateOrCreate([
+                $this->increment('quantity', $this->quantity);
+                Stock::query()->updateOrCreate([
                     'product_id' => $this->product_id,
                     'warehouse_id' => $this->target_warehouse_id,
-                ], []).increment('quantity', $this->quantity);
+                ], []);
             }
 
             $this->update([
@@ -104,5 +101,13 @@ final class StockMovement extends Model
         // Basic validation
         return $this->quantity > 0 &&
                ($this->source_warehouse_id || $this->target_warehouse_id);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'quantity' => 'integer',
+            'executed_at' => 'datetime',
+        ];
     }
 }

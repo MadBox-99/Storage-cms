@@ -22,10 +22,6 @@ final class ReturnLine extends Model
         'note',
     ];
 
-    protected $casts = [
-        'unit_price' => 'decimal:2',
-    ];
-
     public function returnDelivery()
     {
         return $this->belongsTo(ReturnDelivery::class);
@@ -49,5 +45,12 @@ final class ReturnLine extends Model
     public function requiresDisposal(): bool
     {
         return in_array($this->condition, ['DAMAGED', 'EXPIRED', 'DEFECTIVE']);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'unit_price' => 'decimal:2',
+        ];
     }
 }

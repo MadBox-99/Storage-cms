@@ -10,7 +10,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class Inventory extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'inventory_number',
@@ -21,11 +22,6 @@ final class Inventory extends Model
         'type',
         'variance_value',
         'notes',
-    ];
-
-    protected $casts = [
-        'inventory_date' => 'date',
-        'variance_value' => 'decimal:2',
     ];
 
     public function warehouse()
@@ -57,7 +53,7 @@ final class Inventory extends Model
 
     public function calculateVariance(): void
     {
-        $variance = $this->inventoryLines->sum(function ($line) {
+        $variance = $this->inventoryLines->sum(function ($line): int|float {
             return ($line->actual_quantity - $line->system_quantity) * $line->unit_cost;
         });
 
@@ -82,5 +78,13 @@ final class Inventory extends Model
     public function getVarianceCount(): int
     {
         return $this->inventoryLines->where('actual_quantity', '!=', 'system_quantity')->count();
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'inventory_date' => 'date',
+            'variance_value' => 'decimal:2',
+        ];
     }
 }

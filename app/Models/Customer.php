@@ -10,7 +10,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class Customer extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'customer_code',
@@ -22,13 +23,6 @@ final class Customer extends Model
         'credit_limit',
         'balance',
         'type',
-    ];
-
-    protected $casts = [
-        'billing_address' => 'array',
-        'shipping_address' => 'array',
-        'credit_limit' => 'decimal:2',
-        'balance' => 'decimal:2',
     ];
 
     // Relationships
@@ -46,5 +40,15 @@ final class Customer extends Model
     public function updateBalance(float $amount): void
     {
         $this->increment('balance', $amount);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'billing_address' => 'array',
+            'shipping_address' => 'array',
+            'credit_limit' => 'decimal:2',
+            'balance' => 'decimal:2',
+        ];
     }
 }

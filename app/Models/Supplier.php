@@ -10,7 +10,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class Supplier extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'code',
@@ -28,12 +29,6 @@ final class Supplier extends Model
         'website',
         'rating',
         'is_active',
-    ];
-
-    protected $casts = [
-        'is_active' => 'boolean',
-        'headquarters' => 'array',
-        'mailing_address' => 'array',
     ];
 
     // Relationships
@@ -57,5 +52,14 @@ final class Supplier extends Model
     {
         // TODO: Implement certification check
         return false;
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+            'headquarters' => 'array',
+            'mailing_address' => 'array',
+        ];
     }
 }

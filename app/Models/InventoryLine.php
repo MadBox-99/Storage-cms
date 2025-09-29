@@ -23,11 +23,6 @@ final class InventoryLine extends Model
         'note',
     ];
 
-    protected $casts = [
-        'unit_cost' => 'decimal:2',
-        'expiry_date' => 'date',
-    ];
-
     public function inventory()
     {
         return $this->belongsTo(Inventory::class);
@@ -61,5 +56,13 @@ final class InventoryLine extends Model
     public function isShortage(): bool
     {
         return $this->actual_quantity < $this->system_quantity;
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'unit_cost' => 'decimal:2',
+            'expiry_date' => 'date',
+        ];
     }
 }

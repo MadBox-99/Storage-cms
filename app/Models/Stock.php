@@ -11,7 +11,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class Stock extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'product_id',
@@ -22,13 +23,6 @@ final class Stock extends Model
         'maximum_stock',
         'batch_id',
         'status',
-    ];
-
-    protected $casts = [
-        'quantity' => 'integer',
-        'reserved_quantity' => 'integer',
-        'minimum_stock' => 'integer',
-        'maximum_stock' => 'integer',
     ];
 
     // Relationships
@@ -80,13 +74,13 @@ final class Stock extends Model
     }
 
     // Unique constraint: one stock per product per warehouse
-    protected static function boot()
+    protected static function boot(): void
     {
         parent::boot();
 
-        self::creating(function ($stock) {
+        self::creating(function ($stock): void {
             // Ensure unique product-warehouse combination
-            $existing = static::where('product_id', $stock->product_id)
+            $existing = self::query()->where('product_id', $stock->product_id)
                 ->where('warehouse_id', $stock->warehouse_id)
                 ->first();
 
@@ -94,5 +88,15 @@ final class Stock extends Model
                 throw new Exception('Stock already exists for this product in this warehouse');
             }
         });
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'quantity' => 'integer',
+            'reserved_quantity' => 'integer',
+            'minimum_stock' => 'integer',
+            'maximum_stock' => 'integer',
+        ];
     }
 }

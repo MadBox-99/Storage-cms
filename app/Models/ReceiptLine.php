@@ -24,11 +24,6 @@ final class ReceiptLine extends Model
         'note',
     ];
 
-    protected $casts = [
-        'unit_price' => 'decimal:2',
-        'expiry_date' => 'date',
-    ];
-
     public function receipt()
     {
         return $this->belongsTo(Receipt::class);
@@ -62,5 +57,13 @@ final class ReceiptLine extends Model
     public function hasDefects(): bool
     {
         return $this->condition !== 'GOOD';
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'unit_price' => 'decimal:2',
+            'expiry_date' => 'date',
+        ];
     }
 }

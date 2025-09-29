@@ -10,7 +10,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class Product extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'sku',
@@ -27,15 +28,6 @@ final class Product extends Model
         'reorder_point',
         'price',
         'status',
-    ];
-
-    protected $casts = [
-        'weight' => 'decimal:2',
-        'price' => 'decimal:2',
-        'min_stock' => 'integer',
-        'max_stock' => 'integer',
-        'reorder_point' => 'integer',
-        'dimensions' => 'array',
     ];
 
     // Relationships
@@ -80,5 +72,17 @@ final class Product extends Model
     public function needsReorder(): bool
     {
         return $this->getTotalStock() <= $this->reorder_point;
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'weight' => 'decimal:2',
+            'price' => 'decimal:2',
+            'min_stock' => 'integer',
+            'max_stock' => 'integer',
+            'reorder_point' => 'integer',
+            'dimensions' => 'array',
+        ];
     }
 }

@@ -10,7 +10,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class ReturnDelivery extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'return_number',
@@ -25,11 +26,6 @@ final class ReturnDelivery extends Model
         'reason',
         'total_amount',
         'notes',
-    ];
-
-    protected $casts = [
-        'return_date' => 'date',
-        'total_amount' => 'decimal:2',
     ];
 
     public function order()
@@ -76,7 +72,7 @@ final class ReturnDelivery extends Model
 
     public function calculateTotal(): float
     {
-        return $this->returnLines->sum(function ($line) {
+        return $this->returnLines->sum(function ($line): int|float {
             return $line->quantity * $line->unit_price;
         });
     }
@@ -99,5 +95,13 @@ final class ReturnDelivery extends Model
     public function reject(): void
     {
         $this->update(['status' => 'REJECTED']);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'return_date' => 'date',
+            'total_amount' => 'decimal:2',
+        ];
     }
 }

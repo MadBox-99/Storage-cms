@@ -10,7 +10,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class Warehouse extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'code',
@@ -20,11 +21,6 @@ final class Warehouse extends Model
         'capacity',
         'manager_id',
         'is_active',
-    ];
-
-    protected $casts = [
-        'is_active' => 'boolean',
-        'capacity' => 'integer',
     ];
 
     // Relationships
@@ -53,5 +49,13 @@ final class Warehouse extends Model
     public function findProduct(Product $product): ?Stock
     {
         return $this->stocks()->where('product_id', $product->id)->first();
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+            'capacity' => 'integer',
+        ];
     }
 }

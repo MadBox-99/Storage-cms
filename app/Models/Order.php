@@ -11,7 +11,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class Order extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'order_number',
@@ -23,13 +24,6 @@ final class Order extends Model
         'delivery_date',
         'total_amount',
         'shipping_address',
-    ];
-
-    protected $casts = [
-        'order_date' => 'date',
-        'delivery_date' => 'date',
-        'total_amount' => 'decimal:2',
-        'shipping_address' => 'array',
     ];
 
     // Relationships
@@ -68,7 +62,7 @@ final class Order extends Model
 
     public function calculateTotal(): float
     {
-        return $this->orderLines->sum(function ($line) {
+        return $this->orderLines->sum(function (OrderLine $line): int|float {
             return $line->quantity * $line->unit_price * (1 - $line->discount_percent / 100);
         });
     }
@@ -91,5 +85,15 @@ final class Order extends Model
     public function getTrackingNumber(): string
     {
         return $this->order_number;
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'order_date' => 'date',
+            'delivery_date' => 'date',
+            'total_amount' => 'decimal:2',
+            'shipping_address' => 'array',
+        ];
     }
 }
