@@ -1,0 +1,84 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+final class Receipt extends Model
+{
+    use HasFactory, SoftDeletes;
+
+    protected $fillable = [
+        'receipt_number',
+        'order_id',
+        'warehouse_id',
+        'received_by',
+        'receipt_date',
+        'status',
+        'total_amount',
+        'notes',
+    ];
+
+    protected $casts = [
+        'receipt_date' => 'date',
+        'total_amount' => 'decimal:2',
+    ];
+
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
+    }
+
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class);
+    }
+
+    public function receivedBy()
+    {
+        return $this->belongsTo(Employee::class, 'received_by');
+    }
+
+    public function receiptLines()
+    {
+        return $this->hasMany(ReceiptLine::class);
+    }
+
+    public function addLine(ReceiptLine $line): void
+    {
+        $this->receiptLines()->save($line);
+        $this->refreshTotal();
+    }
+
+    public function removeLine(ReceiptLine $line): void
+    {
+        $line->delete();
+        $this->refreshTotal();
+    }
+
+    public function calculateTotal(): float
+    {
+        return $this->receiptLines->sum(function ($line) {
+            return $line->quantity_received * $line->unit_price;
+        });
+    }
+
+    public function refreshTotal(): void
+    {
+        $this->update(['total_amount' => $this->calculateTotal()]);
+    }
+
+    public function confirm(): void
+    {
+        $this->update(['status' => 'CONFIRMED']);
+    }
+
+    public function reject(): void
+    {
+        $this->update(['status' => 'REJECTED']);
+    }
+}

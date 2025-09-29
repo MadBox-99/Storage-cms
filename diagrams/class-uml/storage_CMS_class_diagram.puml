@@ -1,0 +1,714 @@
+@startuml Raktárkezelő rendszer osztálydiagram
+
+title Raktárkezelő rendszer osztálydiagram
+
+' Laravel implementation notes:
+' BaseEntity -> extends Eloquent Model
+' Trackable -> use Laravel Activity Log package
+' Auditable -> use Laravel Auditing package
+' Timestamps (created_at, updated_at) -> automatic in Eloquent
+' Soft Deletes (deleted_at) -> use SoftDeletes trait
+'
+' Relationship notation:
+' <<relationship>> = Laravel relationship method (hasMany, belongsToMany, etc.)
+'                    Not stored as property, use: $model->relationshipName()->get()
+' Example: -lines: List<ReceiptLine> <<relationship>> = public function lines() { return $this->hasMany(ReceiptLine::class); }
+
+' Absztrakt osztályok és interfészek
+abstract class BaseEntity <<Eloquent Model>> {
+  -id: Long
+  -createdAt: DateTime
+  -updatedAt: DateTime
+  -createdBy: String
+  -updatedBy: String
+  +getId(): Long
+  +setId(id: Long): void
+  +getAuditInfo(): AuditInfo
+}
+
+interface Trackable <<Laravel Activity Log>> {
+  +getTrackingNumber(): String
+  +getHistory(): List<HistoryEntry>
+  +addHistoryEntry(entry: HistoryEntry): void
+}
+
+interface Auditable <<Laravel Auditing>> {
+  +getAuditLog(): List<AuditLog>
+  +addAuditEntry(entry: AuditLog): void
+}
+
+' Fő entitások
+class Product extends BaseEntity {
+  -sku: String
+  -name: String
+  -description: String
+  -barcode: String
+  -unitOfMeasure: UnitType
+  -weight: Double
+  -dimensions: Dimensions
+  -category_id: Integer
+  -supplier_id: Integer
+  -minStock: Integer
+  -maxStock: Integer
+  -reorderPoint: Integer
+  -price: BigDecimal
+  -status: ProductStatus
+  +checkAvailability(): Boolean
+  +calculateReorderQuantity(): Integer
+  +updatePrice(price: BigDecimal): void
+}
+
+class Warehouse extends BaseEntity {
+  -code: String
+  -name: String
+  -address: Address
+  -type: WarehouseType
+  -capacity: Integer
+  -manager_id: Integer
+  -is_active: Boolean
+  +getManager(): Employee
+  +getStock(): Collection<Stock>
+  +getAvailableCapacity(): Integer
+  +findProduct(product: Product): Stock
+}
+
+
+class Stock extends BaseEntity {
+  -product_id: Integer
+  -warehouse_id: Integer
+  -quantity: Integer
+  -reserved_quantity: Integer
+  -minimum_stock: Integer
+  -maximum_stock: Integer
+  -batch_id: Integer
+  -status: StockStatus
+  +getAvailableQuantity(): Integer
+  +reserve(quantity: Integer): Boolean
+  +release(quantity: Integer): void
+  +updateQuantity(quantity: Integer): void
+  +isLowStock(): Boolean
+  +getProduct(): Product
+  +getWarehouse(): Warehouse
+}
+
+class Batch implements Trackable {
+  -batchNumber: String
+  -manufactureDate: Date
+  -expiryDate: Date
+  -serialNumbers: List<String>
+  -quantity: Integer
+  -supplier_id: Integer
+  -qualityStatus: QualityStatus
+  +isExpired(): Boolean
+  +getDaysUntilExpiry(): Integer
+  +getTrackingNumber(): String
+  +getHistory(): List<HistoryEntry>
+  +addHistoryEntry(entry: HistoryEntry): void
+}
+
+' Mozgások és tranzakciók
+class StockMovement extends BaseEntity implements Auditable {
+  -movement_number: String
+  -type: MovementType
+  -source_warehouse_id: Integer
+  -target_warehouse_id: Integer
+  -product_id: Integer
+  -quantity: Integer
+  -batch_id: Integer
+  -status: MovementStatus
+  -executed_by: Integer
+  -executed_at: DateTime
+  -reason: String
+  +execute(): void
+  +cancel(): void
+  +validate(): Boolean
+  +getProduct(): Product
+  +getSourceWarehouse(): Warehouse
+  +getTargetWarehouse(): Warehouse
+  +getAuditLog(): List<AuditLog>
+  +addAuditEntry(entry: AuditLog): void
+}
+
+class Order extends BaseEntity implements Trackable {
+  -orderNumber: String
+  -type: OrderType
+  -customer_id: Integer
+  -supplier_id: Integer
+  -orderLines: List<OrderLine> <<relationship>>
+  -status: OrderStatus
+  -orderDate: Date
+  -deliveryDate: Date
+  -totalAmount: BigDecimal
+  -shippingAddress: Address
+  +getOrderLines(): Collection<OrderLine>
+  +addLine(line: OrderLine): void
+  +removeLine(line: OrderLine): void
+  +calculateTotal(): BigDecimal
+  +process(): void
+  +cancel(): void
+  +getTrackingNumber(): String
+  +getHistory(): List<HistoryEntry>
+  +addHistoryEntry(entry: HistoryEntry): void
+}
+
+class OrderLine {
+  -lineNumber: Integer
+  -product_id: Integer
+  -quantity: Integer
+  -unitPrice: BigDecimal
+  -discount: BigDecimal
+  -tax: BigDecimal
+  -subtotal: BigDecimal
+  +calculateSubtotal(): BigDecimal
+  +applyDiscount(discount: BigDecimal): void
+}
+
+class Receipt extends BaseEntity implements Auditable {
+  -receiptNumber: String
+  -type: ReceiptType
+  -order_id: Integer
+  -warehouse_id: Integer
+  -receivedDate: DateTime
+  -received_by: Integer
+  -lines: List<ReceiptLine> <<relationship>>
+  -status: ReceiptStatus
+  -qualityCheckStatus: QualityStatus
+  +getWarehouse(): Warehouse
+  +getLines(): Collection<ReceiptLine>
+  +addLine(line: ReceiptLine): void
+  +complete(): void
+  +reject(): void
+  +processToStock(): void
+  +getAuditLog(): List<AuditLog>
+  +addAuditEntry(entry: AuditLog): void
+}
+
+class ReceiptLine {
+  -product_id: Integer
+  -quantity: Integer
+  -unit_price: BigDecimal
+  -batch_id: Integer
+  -quality_note: String
+  +getProduct(): Product
+  +calculateTotal(): BigDecimal
+  +processToStock(): void
+}
+
+class Shipment extends BaseEntity implements Trackable {
+  -shipmentNumber: String
+  -order_id: Integer
+  -carrier_id: Integer
+  -trackingNumber: String
+  -items: List<ShipmentItem> <<relationship>>
+  -status: ShipmentStatus
+  -shippedDate: DateTime
+  -estimatedDelivery: DateTime
+  -actualDelivery: DateTime
+  +getItems(): Collection<ShipmentItem>
+  +pack(): void
+  +ship(): void
+  +deliver(): void
+  +track(): TrackingInfo
+  +getTrackingNumber(): String
+  +getHistory(): List<HistoryEntry>
+  +addHistoryEntry(entry: HistoryEntry): void
+}
+
+class ShipmentItem {
+  -product: Product
+  -quantity: Integer
+  -batch_id: Integer
+  -pickedFrom: Location
+  -packageNumber: String
+  +pick(): void
+  +pack(): void
+}
+
+' Visszáru szállítólevél
+class ReturnDelivery extends BaseEntity implements Trackable, Auditable {
+  -return_number: String
+  -warehouse_id: Integer
+  -return_date: Date
+  -supplier_id: Integer
+  -reason: ReturnReason
+  -lines: List<ReturnLine> <<relationship>>
+  -status: ReturnStatus
+  -transport_cost: BigDecimal
+  -inspection_result: InspectionResult
+  -reference_document: String
+  +getWarehouse(): Warehouse
+  +getSupplier(): Supplier
+  +getLines(): Collection<ReturnLine>
+  +approve(): void
+  +reject(): void
+  +process(): void
+  +removeFromStock(): void
+  +getTrackingNumber(): String
+  +getHistory(): List<HistoryEntry>
+  +addHistoryEntry(entry: HistoryEntry): void
+  +getAuditLog(): List<AuditLog>
+  +addAuditEntry(entry: AuditLog): void
+}
+
+class ReturnLine {
+  -product_id: Integer
+  -quantity: Integer
+  -unit_price: BigDecimal
+  -condition: ItemCondition
+  -inspection_note: String
+  -action: ReturnAction
+  -restock_location_id: Integer
+  +inspect(): InspectionResult
+  +restock(): void
+  +dispose(): void
+  +calculateTotal(): BigDecimal
+}
+
+' Leltár
+class Inventory extends BaseEntity implements Auditable {
+  -id: Long
+  -inventory_number: String
+  -warehouse_id: Integer
+  -start_date: DateTime
+  -end_date: DateTime
+  -status: InventoryStatus
+  -type: InventoryType
+  -supervisor_id: Integer
+  +lines(): Collection<InventoryLine> <<relationship>>
+  +start(): void
+  +complete(): void
+  +addLine(line: InventoryLine): void
+  +calculateDifferences(): List<InventoryDifference>
+  +generateReport(): InventoryReport
+  +getAuditLog(): List<AuditLog>
+  +addAuditEntry(entry: AuditLog): void
+}
+
+class InventoryLine {
+  #inventory_id: Long
+  -location_id: Integer
+  -product_id: Integer
+  -system_quantity: Integer
+  -counted_quantity: Integer
+  -difference: Integer
+  -batch_id: Integer
+  -counted_by: Integer
+  -counted_at: DateTime
+  +calculateDifference(): Integer
+  +approve(): void
+  +adjustStock(): void
+}
+
+' Szereplők
+
+' Authentication User - alaprendszer része
+class User extends BaseEntity {
+  -name: String
+  -email: String
+  -emailVerifiedAt: DateTime
+  -password: String
+  -rememberToken: String
+  -isActive: Boolean
+  -isSuperAdmin: Boolean
+  +hasPermission(permission: Permission): Boolean
+  +hasRole(role: Role): Boolean
+  +assignRole(role: Role): void
+  +can(ability: String): Boolean
+}
+
+' Employee - Warehouse modul része
+class Employee extends BaseEntity {
+  -user_id: Integer
+  -warehouse_id: Integer
+  -employee_code: String
+  -first_name: String
+  -last_name: String
+  -position: String
+  -department: Department
+  -phone: String
+  -is_active: Boolean
+  +getUser(): User
+  +getWarehouse(): Warehouse
+  +getFullName(): String
+  +hasAccess(warehouse: Warehouse): Boolean
+}
+
+class Supplier extends BaseEntity {
+  -supplierCode: String
+  -companyName: String
+  -tradeName: String
+  -headquarters: Address
+  -mailingAddress: Address
+  -taxNumber: String
+  -euTaxNumber: String
+  -companyRegistrationNumber: String
+  -bankAccountNumber: String
+  -contactPerson: String
+  -email: String
+  -phone: String
+  -website: String
+  -rating: SupplierRating
+  -products: List<Product> <<relationship>>
+  -contracts: List<Contract> <<relationship>>
+  -certifications: List<Certification> <<relationship>>
+  -isActive: Boolean
+  +addProduct(product: Product): void
+  +updateRating(rating: SupplierRating): void
+  +getActiveContracts(): List<Contract>
+  +hasCertification(type: String): Boolean
+}
+
+class Customer extends BaseEntity {
+  -customerCode: String
+  -name: String
+  -email: String
+  -phone: String
+  -billingAddress: Address
+  -shippingAddress: Address
+  -creditLimit: BigDecimal
+  -balance: BigDecimal
+  -type: CustomerType
+  +checkCreditLimit(amount: BigDecimal): Boolean
+  +updateBalance(amount: BigDecimal): void
+}
+
+class Carrier {
+  -carrierId: String
+  -name: String
+  -serviceTypes: List<ServiceType>
+  -trackingUrl: String
+  -apiEndpoint: String
+  +track(trackingNumber: String): TrackingInfo
+  +calculateShipping(shipment: Shipment): BigDecimal
+  +schedulePickup(shipment: Shipment): PickupInfo
+}
+
+' Segéd osztályok
+class Address {
+  -street: String
+  -city: String
+  -state: String
+  -zipCode: String
+  -country: String
+  +format(): String
+  +validate(): Boolean
+}
+
+class Dimensions {
+  -length: Double
+  -width: Double
+  -height: Double
+  -unit: DimensionUnit
+  +calculateVolume(): Double
+  +convertTo(unit: DimensionUnit): Dimensions
+}
+
+
+class Category {
+  -categoryId: String
+  -name: String
+  -parentCategory: Category
+  -attributes: List<Attribute>
+  +getFullPath(): String
+  +isSubcategoryOf(category: Category): Boolean
+}
+
+class AuditLog {
+  -action: String
+  -userId: String
+  -timestamp: DateTime
+  -oldValue: String
+  -newValue: String
+  -ipAddress: String
+}
+
+class HistoryEntry {
+  -timestamp: DateTime
+  -status: String
+  -description: String
+  -userId: String
+  -location: String
+}
+
+' Enumerációk
+' Storage recommendations:
+' <<db-enum>> = store as ENUM in database (rarely changes, fixed set)
+'               Examples: OrderType, Temperature, DimensionUnit
+'               Laravel: $table->enum('type', ['PURCHASE', 'SALES', 'TRANSFER'])
+'
+' <<db-string>> = store as VARCHAR in database (may change/extend over time)
+'                Examples: ProductStatus, Role, Permission
+'                Laravel: $table->string('status', 50)
+
+enum ProductStatus <<db-string>> {
+  ACTIVE
+  INACTIVE
+  DISCONTINUED
+  OUT_OF_STOCK
+}
+
+enum WarehouseType <<db-string>> {
+  MAIN
+  DISTRIBUTION
+  RETAIL
+  RETURN
+  QUARANTINE
+}
+
+
+enum MovementType <<db-string>> {
+  INBOUND
+  OUTBOUND
+  TRANSFER
+  ADJUSTMENT
+  RETURN
+}
+
+enum OrderType <<db-enum>> {
+  PURCHASE
+  SALES
+  TRANSFER
+  RETURN
+}
+
+enum OrderStatus <<db-string>> {
+  DRAFT
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum ReturnReason <<db-string>> {
+  DEFECTIVE
+  DAMAGED
+  WRONG_ITEM
+  NOT_AS_DESCRIBED
+  NO_LONGER_NEEDED
+  EXPIRED
+}
+
+enum ReturnStatus <<db-string>> {
+  REQUESTED
+  APPROVED
+  REJECTED
+  RECEIVED
+  INSPECTED
+  PROCESSED
+  REFUNDED
+}
+
+enum InventoryType <<db-enum>> {
+  FULL
+  CYCLE_COUNT
+  SPOT_CHECK
+  ANNUAL
+}
+
+enum UnitType <<db-string>> {
+  PIECE
+  KILOGRAM
+  GRAM
+  TON
+  LITER
+  MILLILITER
+  METER
+  CENTIMETER
+  SQUARE_METER
+  CUBIC_METER
+  BOX
+  PALLET
+  PACK
+  BOTTLE
+  CAN
+}
+
+enum DimensionUnit <<db-enum>> {
+  MILLIMETER
+  CENTIMETER
+  METER
+  INCH
+  FOOT
+}
+
+enum Temperature <<db-enum>> {
+  AMBIENT
+  REFRIGERATED
+  FROZEN
+  HEATED
+}
+
+enum StockStatus <<db-string>> {
+  AVAILABLE
+  RESERVED
+  DAMAGED
+  QUARANTINE
+  IN_TRANSIT
+  EXPIRED
+}
+
+enum MovementStatus <<db-string>> {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum ReceiptType <<db-enum>> {
+  PURCHASE_ORDER
+  RETURN
+  TRANSFER
+  ADJUSTMENT
+  PRODUCTION
+}
+
+enum ReceiptStatus <<db-string>> {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  REJECTED
+}
+
+
+enum ShipmentStatus <<db-string>> {
+  PENDING
+  PACKED
+  SHIPPED
+  IN_TRANSIT
+  DELIVERED
+  RETURNED
+}
+
+enum QualityStatus <<db-string>> {
+  PENDING_CHECK
+  PASSED
+  FAILED
+  CONDITIONAL
+  QUARANTINE
+}
+
+enum ItemCondition <<db-string>> {
+  NEW
+  USED
+  REFURBISHED
+  DAMAGED
+  DEFECTIVE
+}
+
+enum ReturnAction <<db-string>> {
+  RESTOCK
+  REPAIR
+  DISPOSE
+  RETURN_TO_SUPPLIER
+  REPLACE
+}
+
+enum InspectionResult <<db-string>> {
+  PASSED
+  FAILED
+  PARTIAL
+  PENDING
+}
+
+enum CustomerType <<db-string>> {
+  RETAIL
+  WHOLESALE
+  DISTRIBUTOR
+  INTERNAL
+  VIP
+}
+
+enum SupplierRating <<db-string>> {
+  EXCELLENT
+  GOOD
+  AVERAGE
+  POOR
+  BLACKLISTED
+}
+
+enum ServiceType <<db-string>> {
+  STANDARD
+  EXPRESS
+  OVERNIGHT
+  SAME_DAY
+  FREIGHT
+}
+
+enum Department <<db-string>> {
+  WAREHOUSE
+  LOGISTICS
+  PROCUREMENT
+  QUALITY
+  MANAGEMENT
+  IT
+}
+
+enum Role <<db-string>> {
+  ADMIN
+  MANAGER
+  SUPERVISOR
+  OPERATOR
+  PICKER
+  PACKER
+  DRIVER
+  VIEWER
+}
+
+enum Permission <<db-string>> {
+  VIEW_STOCK
+  EDIT_STOCK
+  CREATE_ORDER
+  APPROVE_ORDER
+  MANAGE_INVENTORY
+  VIEW_REPORTS
+  MANAGE_USERS
+  SYSTEM_ADMIN
+}
+
+' Kapcsolatok
+Product "1" --> "1" Category : belongs to
+Product "1" --> "1" Supplier : supplied by
+
+Warehouse "1" --> "0..*" Stock : stores
+Stock "1" --> "1" Product : contains
+Stock "1" --> "1" Warehouse : stored in
+Stock "0..*" --> "0..1" Batch : part of
+
+Order "1" *-- "1..*" OrderLine : contains
+OrderLine "1" --> "1" Product : includes
+Order "0..1" --> "0..1" Customer : placed by
+Order "0..1" --> "0..1" Supplier : placed to
+
+Receipt "1" --> "1" Order : receives
+Receipt "1" --> "1" Warehouse : delivered to
+Receipt "1" *-- "1..*" ReceiptLine : contains
+ReceiptLine "1" --> "1" Product : receives
+ReceiptLine "1" --> "0..1" Batch : creates
+
+Shipment "1" --> "1" Order : ships
+Shipment "1" *-- "1..*" ShipmentItem : contains
+Shipment "1" --> "1" Carrier : shipped by
+ShipmentItem "1" --> "1" Product : ships
+
+ReturnDelivery "1" --> "1" Warehouse : from
+ReturnDelivery "1" --> "1" Supplier : to
+ReturnDelivery "1" *-- "1..*" ReturnLine : contains
+ReturnLine "1" --> "1" Product : returns
+
+StockMovement "1" --> "1" Product : moves
+StockMovement "1" --> "0..1" Warehouse : from
+StockMovement "1" --> "0..1" Warehouse : to
+StockMovement "1" --> "1" Employee : executed by
+
+Inventory "1" --> "1" Warehouse : counts
+Inventory "1" *-- "1..*" InventoryLine : hasMany
+InventoryLine "1" --> "1" Inventory : belongs to
+InventoryLine "1" --> "1" Product : counts
+
+Employee "1" --> "1" User : has account
+Employee "1" --> "0..1" Warehouse : works at
+Supplier "1" --> "0..*" Product : supplies
+Customer "1" --> "0..*" Order : places
+
+@enduml

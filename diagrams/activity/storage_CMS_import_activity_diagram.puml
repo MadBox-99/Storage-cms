@@ -1,0 +1,128 @@
+@startuml Beszerzési lánc folyamatábra
+
+!define RECTANGLE class
+
+title Beszerzési lánc folyamatábra
+
+|#LightBlue|Igénylő/Raktáros|
+start
+:Készletszint ellenőrzése;
+if (Készlet < Minimum?) then (igen)
+  :Beszerzési igény létrehozása;
+  note right
+    - Cikk megnevezése
+    - Mennyiség
+    - Határidő
+    - Indoklás
+  end note
+else (nem)
+  stop
+endif
+
+|#LightGreen|Beszerző|
+:Igény fogadása és ellenőrzése;
+:Beszállítók kiválasztása;
+if (Keretszerződés létezik?) then (igen)
+  :Keretszerződés\nellenőrzése;
+else (nem)
+  :Ajánlatkérés készítése;
+  :Ajánlatok bekérése;
+  fork
+    :1. beszállító ajánlata;
+  fork again
+    :2. beszállító ajánlata;
+  fork again
+    :3. beszállító ajánlata;
+  end fork
+  :Ajánlatok értékelése;
+  note right
+    - Ár
+    - Minőség
+    - Szállítási idő
+    - Fizetési feltételek
+  end note
+  :Beszállító kiválasztása;
+endif
+
+:Megrendelés létrehozása;
+:Megrendelés jóváhagyatása;
+
+|#Yellow|Vezető/Controller|
+:Megrendelés ellenőrzése;
+if (Budget rendelkezésre áll?) then (igen)
+  if (Értékhatár alatt?) then (igen)
+    :Megrendelés jóváhagyása;
+  else (nem)
+    :Felsővezetői\njóváhagyás kérése;
+    if (Jóváhagyva?) then (igen)
+      :Megrendelés jóváhagyása;
+    else (nem)
+      :Megrendelés elutasítása;
+      stop
+    endif
+  endif
+else (nem)
+  :Budget igénylés;
+  :Megrendelés felfüggesztése;
+  stop
+endif
+
+|#LightGreen|Beszerző|
+:Megrendelés elküldése;
+:Visszaigazolás fogadása;
+
+|#Orange|Szállító|
+:Megrendelés feldolgozása;
+:Szállítás előkészítése;
+:Áru kiszállítása;
+:Szállítólevél kiállítása;
+
+|#LightBlue|Raktáros|
+:Áru fogadása;
+:Mennyiségi ellenőrzés;
+:Minőségi ellenőrzés;
+
+if (Áru megfelelő?) then (igen)
+  :Bevételezés rögzítése;
+  :Raktári helyre történő\nelhelyezés;
+  :Készletszint frissítése;
+
+  |#LightGreen|Beszerző|
+  :Számla fogadása;
+  :Számla ellenőrzése;
+
+  |#LightCoral|Pénzügy|
+  :Számla könyvelése;
+  :Fizetési ütemezés;
+  :Kifizetés;
+  stop
+
+else (nem)
+  :Eltérés dokumentálása;
+
+  |#LightBlue|Raktáros|
+  fork
+    :Visszáru folyamat\nindítása;
+    :Visszáru ok rögzítése;
+    :Visszáru szállítólevél;
+
+    |#Orange|Szállító|
+    :Visszáru fogadása;
+    fork
+      :Jóváírás kiállítása;
+    fork again
+      :Csereáru küldése;
+      |#LightBlue|Raktáros|
+      :Csereáru bevételezése;
+    end fork
+
+  fork again
+    |#LightGreen|Beszerző|
+    :Reklamáció kezelése;
+    :Minőségi kifogás\ndokumentálása;
+  end fork
+
+  stop
+endif
+
+@enduml

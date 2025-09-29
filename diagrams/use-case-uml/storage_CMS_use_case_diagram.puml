@@ -1,0 +1,191 @@
+@startuml Beszerzés és Készletgazdálkodás Use Case Diagram
+
+' Aktorok
+actor "Raktáros" as raktaros
+actor "Beszerzési munkatárs" as beszerzo
+actor "Vezető/Controller" as vezeto
+actor "Rendszergazda" as admin
+actor "Külső rendszer" as kulso_rendszer
+actor "NAV/KSH" as hatosag
+actor "Szállító" as szallito
+actor "Vevő" as vevo
+
+' Use Case-ek csoportosítása
+rectangle "Beszerzés és készletgazdálkodás rendszer" {
+  
+  ' Cikktörzs kezelés'
+  package "Cikktörzs kezelés" #LightBlue {
+    usecase "Cikk létrehozása" as UC1
+    usecase "Cikkcsoport kezelése" as UC2
+    usecase "Egyedi tulajdonságok\nmegadása" as UC3
+    usecase "Cikk adatok\nmódosítása" as UC4
+  }
+  
+  ' Raktarkezeles'
+  package "Raktárkezelés" #LightGreen {
+    usecase "Raktár létrehozása" as UC5
+    usecase "Készlet bevételezése" as UC6
+    usecase "Készlet kiadása" as UC7
+    usecase "Raktárak közötti\nátmozgatás" as UC8
+    usecase "Készletszint figyelése" as UC9
+    usecase "Min/max készlet\nbeállítása" as UC10
+    usecase "Min/max Készlet \nfigyelmeztetés" as UC10a
+  }
+  
+  ' Sarzs kezelés'
+  package "Sarzs/Gyártási szám" #LightYellow {
+    usecase "Sarzs generálása" as UC11
+    usecase "Gyártási szám\nrögzítése" as UC12
+    usecase "Lejárat követése" as UC13
+    usecase "Szavatosság\nellenőrzése" as UC14
+  }
+  
+  ' Beszerzés'
+  package "Beszerzési folyamat" #LightCoral {
+    usecase "Beszerzési igény\nlétrehozása" as UC15
+    usecase "Ajánlatkérés" as UC16
+    usecase "Árlista kezelése" as UC17
+    usecase "Rendelés létrehozása" as UC18
+    usecase "Rendelés követése" as UC19
+  }
+
+  ' Visszáru kezelés'
+  package "Visszáru kezelési rendszer" #Orange {
+    usecase "Visszáru igény\nindítása" as UC20
+    usecase "Visszáru ok\nrögzítése" as UC33
+    usecase "Visszáru szállítólevél\ngenerálása" as UC34
+    usecase "Visszáru átvétel\nigazolása" as UC35
+    usecase "Jóváírás kezelése" as UC36
+    usecase "Csere igény\nkezdelése" as UC37
+    usecase "Visszáru statisztika\nelemzése" as UC38
+    usecase "Minőségi reklamáció\nkezelése" as UC39
+    usecase "Visszáru raktár\nkezelése" as UC40
+    usecase "Visszáru költség\nelszámolása" as UC41
+  }
+  
+  ' Leltározás'
+  package "Leltározás" #Lavender {
+    usecase "Leltárív generálása" as UC21
+    usecase "Leltár rögzítése" as UC22
+    usecase "Leltárkészlet korrekció" as UC23
+    usecase "Leltár eltérés\nelemzése" as UC24
+  }
+  
+  ' Riportolás'
+  package "Riportok és elemzések" #LightPink {
+    usecase "Készletérték\nlekérdezése" as UC25
+    usecase "Forgási sebesség\nelemzése" as UC26
+    usecase "ABC analízis" as UC27
+    usecase "INTRASTAT\nadatszolgáltatás" as UC28
+    usecase "Vezetői riportok\nkészítése" as UC29
+  }
+  
+  'Integráció'
+  package "Integráció" #LightGray {
+    usecase "Adatok importálása" as UC30
+    usecase "Adatok exportálása" as UC31
+    usecase "API kapcsolat" as UC32
+  }
+}
+
+' Kapcsolatok - Raktáros
+raktaros --> UC6 : bevételez
+raktaros --> UC7 : kiad
+raktaros --> UC8 : átmozgat
+raktaros --> UC9 : figyel
+raktaros --> UC10a : beállít
+raktaros --> UC11 : generál
+raktaros --> UC12 : rögzít
+raktaros --> UC21 : generál
+raktaros --> UC22 : rögzít
+raktaros --> UC23 : korrigál
+
+' Kapcsolatok - Beszerzési munkatárs
+beszerzo --> UC1 : létrehoz
+beszerzo --> UC2 : kezel
+beszerzo --> UC3 : megad
+beszerzo --> UC4 : módosít
+beszerzo --> UC10 : beállít
+beszerzo --> UC15 : létrehoz
+beszerzo --> UC16 : kezdeményez
+beszerzo --> UC17 : kezel
+beszerzo --> UC18 : létrehoz
+beszerzo --> UC19 : követ
+
+' Kapcsolatok - Vezető
+vezeto --> UC24 : elemez
+vezeto --> UC25 : lekérdez
+vezeto --> UC26 : elemez
+vezeto --> UC27 : elemez
+vezeto --> UC29 : készít
+vezeto --> UC38 : elemez
+vezeto --> UC41 : jóváhagy
+
+' Kapcsolatok - Rendszergazda
+admin --> UC5 : létrehoz
+admin --> UC30 : importál
+admin --> UC31 : exportál
+admin --> UC32 : konfigurál
+
+' Kapcsolatok - Külső rendszer
+kulso_rendszer --> UC32 : kapcsolódik
+
+' Kapcsolatok - Hatóság
+UC28 --> hatosag : adatszolgáltatás
+
+' Kapcsolatok - Visszáru kezelés
+raktaros --> UC20 : indít
+raktaros --> UC33 : rögzít
+raktaros --> UC34 : generál
+raktaros --> UC35 : igazol
+raktaros --> UC40 : kezel
+raktaros --> UC39 : jelent
+
+beszerzo --> UC20 : indít
+beszerzo --> UC36 : kezel
+beszerzo --> UC37 : kezdeményez
+beszerzo --> UC39 : kezel
+beszerzo --> UC41 : elszámol
+
+' Kapcsolatok - Szállító
+szallito --> UC35 : visszaigazol
+szallito --> UC36 : jóváír
+
+' Kapcsolatok - Vevő
+vevo --> UC20 : kezdeményez
+vevo --> UC37 : kér
+
+' Include kapcsolatok '
+UC6 ..> UC13 : <<include>>
+UC6 ..> UC14 : <<include>>
+UC7 ..> UC9 : <<include>>
+UC18 ..> UC17 : <<include>>
+UC22 ..> UC24 : <<include>>
+UC20 ..> UC33 : <<include>>
+UC20 ..> UC34 : <<include>>
+UC39 ..> UC33 : <<include>>
+UC36 ..> UC41 : <<include>>
+
+' Extend kapcsolatok
+UC9 <<.. UC10a : <<extend>>\nÉrtesítés és figyelmeztetés
+UC9 <<.. UC10 : <<extend>>
+UC15 <<.. UC9 : <<extend>>\nAutomatikus igény
+UC13 <<.. UC14 : <<extend>>\nFigyelmeztetés
+UC20 <<.. UC37 : <<extend>>\nCsere folyamat
+UC20 <<.. UC39 : <<extend>>\nMinőségi probléma
+UC33 <<.. UC38 : <<extend>>\nStatisztika készítés
+UC35 <<.. UC40 : <<extend>>\nVisszáru raktározás
+
+' Általánosítás
+usecase "Készletmozgás" as UC_base
+UC6 --|> UC_base
+UC7 --|> UC_base
+UC8 --|> UC_base
+UC40 --|> UC_base
+UC23 --|> UC_base
+
+usecase "Pénzügyi elszámolás" as UC_penz
+UC36 --|> UC_penz
+UC41 --|> UC_penz
+
+@enduml

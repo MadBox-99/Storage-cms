@@ -1,0 +1,103 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+final class ReturnDelivery extends Model
+{
+    use HasFactory, SoftDeletes;
+
+    protected $fillable = [
+        'return_number',
+        'type',
+        'order_id',
+        'customer_id',
+        'supplier_id',
+        'warehouse_id',
+        'processed_by',
+        'return_date',
+        'status',
+        'reason',
+        'total_amount',
+        'notes',
+    ];
+
+    protected $casts = [
+        'return_date' => 'date',
+        'total_amount' => 'decimal:2',
+    ];
+
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
+    }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
+    }
+
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class);
+    }
+
+    public function processedBy()
+    {
+        return $this->belongsTo(Employee::class, 'processed_by');
+    }
+
+    public function returnLines()
+    {
+        return $this->hasMany(ReturnLine::class);
+    }
+
+    public function addLine(ReturnLine $line): void
+    {
+        $this->returnLines()->save($line);
+        $this->refreshTotal();
+    }
+
+    public function removeLine(ReturnLine $line): void
+    {
+        $line->delete();
+        $this->refreshTotal();
+    }
+
+    public function calculateTotal(): float
+    {
+        return $this->returnLines->sum(function ($line) {
+            return $line->quantity * $line->unit_price;
+        });
+    }
+
+    public function refreshTotal(): void
+    {
+        $this->update(['total_amount' => $this->calculateTotal()]);
+    }
+
+    public function process(): void
+    {
+        $this->update(['status' => 'PROCESSED']);
+    }
+
+    public function approve(): void
+    {
+        $this->update(['status' => 'APPROVED']);
+    }
+
+    public function reject(): void
+    {
+        $this->update(['status' => 'REJECTED']);
+    }
+}

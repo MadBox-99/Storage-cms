@@ -1,0 +1,185 @@
+@startuml Visszáru kezelési Use Case Diagram
+
+title Visszáru kezelési rendszer Use Case diagramja
+
+' Aktorok
+actor "Raktáros" as raktaros
+actor "Beszerzési munkatárs" as beszerzo
+actor "Vevő/Belső igénylő" as vevo
+actor "Szállító/Beszállító" as szallito
+actor "Pénzügyi munkatárs" as penzugy
+actor "Minőségbiztosítási munkatárs" as QA
+actor "Vezető" as vezeto
+actor "Külső futárszolgálat" as futar
+
+' Use Case-ek
+rectangle "Visszáru kezelési rendszer" {
+
+  ' Visszáru indítás
+  package "Visszáru kezdeményezés" #LightBlue {
+    usecase "Visszáru igény\nindítása" as UC1
+    usecase "Probléma típus\nmeghatározása" as UC2
+    usecase "Fotódokumentáció\ncsatolása" as UC3
+    usecase "Visszáru ok\nrögzítése" as UC4
+  }
+
+  ' Visszáru feldolgozás
+  package "Visszáru feldolgozás" #LightGreen {
+    usecase "Visszáru igény\nelbírálása" as UC5
+    usecase "RMA szám\ngenerálása" as UC6
+    usecase "Visszáru szállítólevél\nkészítése" as UC7
+    usecase "Visszáru engedélyezése" as UC8
+    usecase "Visszáru elutasítása" as UC9
+  }
+
+  ' Logisztika
+  package "Visszáru logisztika" #LightYellow {
+    usecase "Áru elkülönítése" as UC10
+    usecase "Visszáru csomagolása" as UC11
+    usecase "Szállítás megszervezése" as UC12
+    usecase "Átadás-átvétel\ndokumentálása" as UC13
+    usecase "Visszáru raktár\nkezelése" as UC14
+  }
+
+  ' Pénzügyi elszámolás
+  package "Pénzügyi elszámolás" #LightCoral {
+    usecase "Jóváírás kezelése" as UC15
+    usecase "Visszatérítés\nindítása" as UC16
+    usecase "Beszállítói egyenleg\nfrissítése" as UC17
+    usecase "Visszáru költség\nelszámolása" as UC18
+  }
+
+  ' Kompenzáció
+  package "Kompenzáció kezelés" #Orange {
+    usecase "Csereáru igénylése" as UC19
+    usecase "Csereáru fogadása" as UC20
+    usecase "Javítás igénylése" as UC21
+    usecase "Javított áru\nvisszafogadása" as UC22
+  }
+
+  ' Minőségbiztosítás
+  package "Minőségbiztosítás és elemzés" #Lavender {
+    usecase "Visszáru vizsgálata" as UC23
+    usecase "Minőségi jelentés\nkészítése" as UC24
+    usecase "Beszállító értékelés\nfrissítése" as UC25
+    usecase "Visszáru statisztika\nelemzése" as UC26
+    usecase "Audit kezdeményezése" as UC27
+  }
+
+  ' Riportolás
+  package "Riportolás" #LightPink {
+    usecase "Visszáru riport\nkészítése" as UC28
+    usecase "KPI mutatók\nszámítása" as UC29
+    usecase "Trend elemzés" as UC30
+  }
+
+  ' Készletkezelés
+  package "Készletkezelés" #LightGray {
+    usecase "Készlet kivezetése" as UC31
+    usecase "Készlet visszavételezése" as UC32
+    usecase "Selejtezés indítása" as UC33
+  }
+}
+
+' Kapcsolatok - Raktáros
+raktaros --> UC1 : indít
+raktaros --> UC2 : meghatároz
+raktaros --> UC3 : csatol
+raktaros --> UC10 : elkülönít
+raktaros --> UC11 : csomagol
+raktaros --> UC13 : dokumentál
+raktaros --> UC14 : kezel
+raktaros --> UC20 : fogad
+raktaros --> UC22 : visszafogad
+raktaros --> UC31 : kivezet
+raktaros --> UC32 : visszavételez
+raktaros --> UC33 : selejtez
+
+' Kapcsolatok - Beszerző
+beszerzo --> UC1 : indít
+beszerzo --> UC4 : rögzít
+beszerzo --> UC5 : elbírál
+beszerzo --> UC6 : generál
+beszerzo --> UC8 : engedélyez
+beszerzo --> UC9 : elutasít
+beszerzo --> UC12 : megszervez
+beszerzo --> UC19 : igényel
+beszerzo --> UC21 : igényel
+
+' Kapcsolatok - Vevő
+vevo --> UC1 : kezdeményez
+vevo --> UC2 : jelent
+vevo --> UC3 : dokumentál
+
+' Kapcsolatok - Szállító
+szallito --> UC13 : átvesz
+szallito --> UC15 : jóváír
+szallito --> UC19 : teljesít
+szallito --> UC21 : javít
+szallito --> UC23 : vizsgál
+
+' Kapcsolatok - Pénzügy
+penzugy --> UC15 : könyvel
+penzugy --> UC16 : indít
+penzugy --> UC17 : frissít
+penzugy --> UC18 : elszámol
+
+' Kapcsolatok - Minőségbiztosítás
+QA --> UC23 : vizsgál
+QA --> UC24 : készít
+QA --> UC25 : frissít
+QA --> UC26 : elemez
+QA --> UC27 : kezdeményez
+
+' Kapcsolatok - Vezető
+vezeto --> UC5 : jóváhagy
+vezeto --> UC26 : áttekint
+vezeto --> UC28 : kér
+vezeto --> UC29 : elemez
+vezeto --> UC30 : elemez
+
+' Kapcsolatok - Futár
+futar --> UC12 : végez
+
+' Include kapcsolatok
+UC1 ..> UC2 : <<include>>
+UC1 ..> UC4 : <<include>>
+UC5 ..> UC6 : <<include>>
+UC5 ..> UC7 : <<include>>
+UC8 ..> UC10 : <<include>>
+UC8 ..> UC11 : <<include>>
+UC12 ..> UC13 : <<include>>
+UC15 ..> UC17 : <<include>>
+UC19 ..> UC20 : <<include>>
+UC21 ..> UC22 : <<include>>
+UC23 ..> UC24 : <<include>>
+UC26 ..> UC29 : <<include>>
+
+' Extend kapcsolatok
+UC1 <<.. UC3 : <<extend>>\nOpcionális dokumentáció
+UC5 <<.. UC8 : <<extend>>\nElfogadás
+UC5 <<.. UC9 : <<extend>>\nElutasítás
+UC8 <<.. UC15 : <<extend>>\nJóváírás folyamat
+UC8 <<.. UC19 : <<extend>>\nCsere folyamat
+UC8 <<.. UC21 : <<extend>>\nJavítás folyamat
+UC23 <<.. UC27 : <<extend>>\nSúlyos probléma esetén
+UC26 <<.. UC25 : <<extend>>\nBeszállító minősítés
+
+' Általánosítás
+usecase "Kompenzáció" as UC_komp
+UC15 --|> UC_komp
+UC16 --|> UC_komp
+UC19 --|> UC_komp
+UC21 --|> UC_komp
+
+usecase "Készletmozgás" as UC_keszlet
+UC31 --|> UC_keszlet
+UC32 --|> UC_keszlet
+UC33 --|> UC_keszlet
+
+usecase "Elemzés" as UC_elemzes
+UC26 --|> UC_elemzes
+UC29 --|> UC_elemzes
+UC30 --|> UC_elemzes
+
+@enduml

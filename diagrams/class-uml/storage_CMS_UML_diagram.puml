@@ -1,0 +1,247 @@
+@startuml Beszerzés és Készletgazdálkodás Osztálydiagram
+
+' Alaposztályok
+abstract class BaseModel {
+  - id: UUID
+  - created_at: DateTime
+  - updated_at: DateTime
+  - created_by: User
+  - updated_by: User
+  - deleted_at: DateTime
+  + save(): void
+  + delete(): void
+  + restore(): void
+}
+
+' Cikktörzs
+class Cikk extends BaseModel {
+  - cikkszam: String
+  - megnevezes: String
+  - mertekegyseg: String
+  - cikkcsoport_id: Integer
+  - egyedi_tulajdonsagok: JSON
+  - aktiv: Boolean
+  + getCikkcsoport(): Cikkcsoport
+  + getSarzs(): Collection<Sarzs>
+  + getKeszlet(): Collection<Keszlet>
+}
+
+class Cikkcsoport extends BaseModel {
+  - nev: String
+  - kod: String
+  - szulo_id: Integer
+  + getCikkek(): Collection<Cikk>
+  + getGyermekCsoportok(): Collection<Cikkcsoport>
+}
+
+' Sarzs és gyártási szám
+class Sarzs extends BaseModel {
+  - cikk_id: Integer
+  - sarzsszam: String
+  - gyartasi_szam: String
+  - gyartasi_datum: Date
+  - lejarat: Date
+  - mennyiseg: Decimal
+  + getCikk(): Cikk
+  + isLejart(): Boolean
+}
+
+' Raktár
+class Raktar extends BaseModel {
+  - kod: String
+  - nev: String
+  - cim: String
+  - tipus: RaktarTipus
+  - virtualis: Boolean
+  + getKeszletek(): Collection<Keszlet>
+}
+
+enum RaktarTipus {
+  KOZPONTI
+  KIHELYEZETT
+  KONSZINACIOS
+  VIRTUALIS
+}
+
+' Készlet
+class Keszlet extends BaseModel {
+  - cikk_id: Integer
+  - raktar_id: Integer
+  - sarzs_id: Integer
+  - mennyiseg: Decimal
+  - foglalt_mennyiseg: Decimal
+  - minimum_keszlet: Decimal
+  - maximum_keszlet: Decimal
+  + getSzabadKeszlet(): Decimal
+  + isMinimumAlatt(): Boolean
+  + getCikk(): Cikk
+  + getRaktar(): Raktar
+}
+
+' Készletmozgás
+class Keszletmozgas extends BaseModel {
+  - cikk_id: Integer
+  - raktar_id: Integer
+  - sarzs_id: Integer
+  - tipus: MozgasTipus
+  - mennyiseg: Decimal
+  - bizonylat_szam: String
+  - megjegyzes: String
+  + getCikk(): Cikk
+  + getRaktar(): Raktar
+}
+
+enum MozgasTipus {
+  BEVETEL
+  KIADAS
+  ATSOROLAS
+  KORREKCIÓ
+  SELEJT
+  VISSZARU
+}
+
+' Partner
+class Partner extends BaseModel {
+  - kod: String
+  - nev: String
+  - adoszam: String
+  - cim: String
+  - kapcsolattarto: String
+  - email: String
+  - telefon: String
+  - tipus: PartnerTipus
+  + getArlistak(): Collection<Arlista>
+  + getRendelesek(): Collection<BeszerzesiRendeles>
+}
+
+enum PartnerTipus {
+  SZALLITO
+  VEVO
+  MINDKETTO
+}
+
+' Árlista
+class Arlista extends BaseModel {
+  - partner_id: Integer
+  - cikk_id: Integer
+  - egysegar: Decimal
+  - deviza: String
+  - ervenyesseg_kezdete: Date
+  - ervenyesseg_vege: Date
+  - mennyisegi_kedvezmeny: JSON
+  + getPartner(): Partner
+  + getCikk(): Cikk
+  + getAktivAr(): Decimal
+}
+
+' Beszerzési rendelés
+class BeszerzesiRendeles extends BaseModel {
+  - rendeles_szam: String
+  - partner_id: Integer
+  - rendeles_datum: Date
+  - szallitasi_hatar: Date
+  - statusz: RendelesStatusz
+  - osszeg: Decimal
+  - deviza: String
+  + getPartner(): Partner
+  + getTetelek(): Collection<RendelesTetelek>
+  + getTeljesites(): Decimal
+}
+
+enum RendelesStatusz {
+  TERVEZET
+  JÓVÁHAGYÁSRA_VÁR
+  JÓVÁHAGYOTT
+  KIKÜLDÖTT
+  RÉSZBEN_TELJESÍTETT
+  TELJESÍTETT
+  SZTORNÓZOTT
+}
+
+class RendelesTetelek extends BaseModel {
+  - rendeles_id: Integer
+  - cikk_id: Integer
+  - mennyiseg: Decimal
+  - egysegar: Decimal
+  - kedvezmeny_szazalek: Decimal
+  - teljesitett_menny: Decimal
+  + getRendeles(): BeszerzesiRendeles
+  + getCikk(): Cikk
+  + getOsszeg(): Decimal
+}
+
+' Leltár
+class Leltar extends BaseModel {
+  - leltar_azonosito: String
+  - leltar_datum: Date
+  - raktar_id: Integer
+  - statusz: LeltarStatusz
+  - megjegyzes: String
+  + getRaktar(): Raktar
+  + getTetelek(): Collection<LeltarTetel>
+  + lezar(): void
+}
+
+enum LeltarStatusz {
+  ELŐKÉSZÍTETT
+  FOLYAMATBAN
+  ELLENŐRZÉS_ALATT
+  LEZÁRT
+}
+
+class LeltarTetel extends BaseModel {
+  - leltar_id: Integer
+  - cikk_id: Integer
+  - szamolt_mennyiseg: Decimal
+  - konyv_szerinti_menny: Decimal
+  - elteres: Decimal
+  + getLeltar(): Leltar
+  + getCikk(): Cikk
+}
+
+' INTRASTAT
+class Intrastat extends BaseModel {
+  - ev: Integer
+  - honap: Integer
+  - irany: IntrastatIrany
+  - partner_orszag: String
+  - cikk_id: Integer
+  - mennyiseg: Decimal
+  - ertek: Decimal
+  - statusz: String
+  + getCikk(): Cikk
+  + exportToXML(): String
+}
+
+enum IntrastatIrany {
+  BEKERKEZES
+  KISZALLITAS
+}
+
+' Kapcsolatok
+Cikk "1" --> "0..*" Sarzs
+Cikk "1" --> "0..*" Keszlet
+Cikk "*" --> "1" Cikkcsoport
+Cikkcsoport "0..*" --> "0..1" Cikkcsoport : szulo
+
+Raktar "1" --> "0..*" Keszlet
+Keszlet "*" --> "0..1" Sarzs
+
+Keszletmozgas "*" --> "1" Cikk
+Keszletmozgas "*" --> "1" Raktar
+
+Partner "1" --> "0..*" Arlista
+Partner "1" --> "0..*" BeszerzesiRendeles
+
+Arlista "*" --> "1" Cikk
+
+BeszerzesiRendeles "1" --> "0..*" RendelesTetelek
+RendelesTetelek "*" --> "1" Cikk
+
+Leltar "*" --> "1" Raktar
+Leltar "1" --> "0..*" LeltarTetel
+LeltarTetel "*" --> "1" Cikk
+
+Intrastat "*" --> "1" Cikk
+
+@enduml

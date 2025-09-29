@@ -1,0 +1,508 @@
+@startuml Procurement and Inventory Management Class Diagram
+
+' Interfaces for modularity
+interface Auditable {
+  + getCreatedAt(): DateTime
+  + getUpdatedAt(): DateTime
+  + getCreatedBy(): User
+  + getUpdatedBy(): User
+  + getDeletedAt(): DateTime
+}
+
+interface Trackable {
+  + getTrackingNumber(): String
+  + getHistory(): List<Event>
+}
+
+interface Validatable {
+  + validate(): ValidationResult
+  + isValid(): Boolean
+}
+
+interface Priceable {
+  + getPrice(): Decimal
+  + getCurrency(): String
+  + getPriceWithTax(): Decimal
+}
+
+interface Stockable {
+  + getAvailableQuantity(): Decimal
+  + reserveStock(quantity: Decimal): Boolean
+  + releaseStock(quantity: Decimal): Boolean
+}
+
+' Base classes
+abstract class BaseModel implements Auditable {
+  # id: UUID
+  # createdAt: DateTime
+  # updatedAt: DateTime
+  # createdBy: User
+  # updatedBy: User
+  # deletedAt: DateTime
+  + save(): void
+  + delete(): void
+  + restore(): void
+  + validate(): ValidationResult
+}
+
+abstract class InventoryEntity extends BaseModel implements Stockable {
+  # quantity: Decimal
+  # reservedQuantity: Decimal
+  + getAvailableQuantity(): Decimal
+  + reserveStock(quantity: Decimal): Boolean
+  + releaseStock(quantity: Decimal): Boolean
+}
+
+' Value Objects
+class Money {
+  - amount: Decimal
+  - currency: Currency
+  + add(other: Money): Money
+  + multiply(factor: Decimal): Money
+  + convertTo(currency: Currency): Money
+}
+
+class Address {
+  - street: String
+  - city: String
+  - postalCode: String
+  - country: String
+  + format(): String
+  + validate(): Boolean
+}
+
+class ContactInfo {
+  - email: String
+  - phone: String
+  - mobile: String
+  + validate(): Boolean
+}
+
+' Product Management
+class Product extends BaseModel implements Validatable, Priceable {
+  - sku: String
+  - name: String
+  - description: String
+  - unitOfMeasure: UnitOfMeasure
+  - categoryId: Integer
+  - customProperties: Map<String, Object>
+  - active: Boolean
+  - basePrice: Money
+  + getCategory(): Category
+  + getBatches(): Collection<Batch>
+  + getStock(): Collection<Stock>
+  + getPrice(): Decimal
+  + getCurrency(): String
+  + getPriceWithTax(): Decimal
+  + validate(): ValidationResult
+  + isValid(): Boolean
+}
+
+class Category extends BaseModel {
+  - name: String
+  - code: String
+  - parentId: Integer
+  - properties: CategoryProperties
+  + getProducts(): Collection<Product>
+  + getSubCategories(): Collection<Category>
+  + getParent(): Category
+  + getFullPath(): String
+}
+
+class CategoryProperties {
+  - requiresBatch: Boolean
+  - requiresExpiry: Boolean
+  - temperatureControlled: Boolean
+  - customFields: Map<String, FieldDefinition>
+}
+
+' Batch and Serial Management
+class Batch extends BaseModel implements Trackable {
+  - productId: Integer
+  - batchNumber: String
+  - serialNumber: String
+  - manufacturingDate: Date
+  - expiryDate: Date
+  - quantity: Decimal
+  - qualityCertificate: Document
+  + getProduct(): Product
+  + isExpired(): Boolean
+  + getDaysUntilExpiry(): Integer
+  + getTrackingNumber(): String
+  + getHistory(): List<Event>
+}
+
+' Warehouse Management
+class Warehouse extends BaseModel {
+  - code: String
+  - name: String
+  - address: Address
+  - type: WarehouseType
+  - virtual: Boolean
+  - manager: Employee
+  - settings: WarehouseSettings
+  + getStocks(): Collection<Stock>
+  + getLocations(): Collection<Location>
+  + getCapacityUtilization(): Decimal
+}
+
+class Location {
+  - warehouseId: Integer
+  - code: String
+  - zone: Zone
+  - aisle: String
+  - rack: String
+  - shelf: String
+  - bin: String
+  + getFullPath(): String
+  + isAvailable(): Boolean
+}
+
+class WarehouseSettings {
+  - allowNegativeStock: Boolean
+  - requiresLocationTracking: Boolean
+  - defaultReceivingLocation: Location
+  - defaultShippingLocation: Location
+}
+
+enum WarehouseType {
+  CENTRAL
+  SATELLITE
+  CONSIGNMENT
+  VIRTUAL
+  RETURNS
+  QUARANTINE
+}
+
+enum Zone {
+  RECEIVING
+  STORAGE
+  PICKING
+  PACKING
+  SHIPPING
+  RETURNS
+  QUARANTINE
+}
+
+' Inventory Management
+class Stock extends InventoryEntity {
+  - productId: Integer
+  - warehouseId: Integer
+  - locationId: Integer
+  - batchId: Integer
+  - quantity: Decimal
+  - reservedQuantity: Decimal
+  - minimumStock: Decimal
+  - maximumStock: Decimal
+  - reorderPoint: Decimal
+  + getAvailableQuantity(): Decimal
+  + isBelowMinimum(): Boolean
+  + isAboveMaximum(): Boolean
+  + needsReorder(): Boolean
+  + getProduct(): Product
+  + getWarehouse(): Warehouse
+  + getLocation(): Location
+}
+
+class StockMovement extends BaseModel implements Trackable {
+  - movementNumber: String
+  - productId: Integer
+  - sourceLocation: Location
+  - targetLocation: Location
+  - batchId: Integer
+  - type: MovementType
+  - quantity: Decimal
+  - documentNumber: String
+  - reason: String
+  - cost: Money
+  + execute(): void
+  + reverse(): void
+  + getProduct(): Product
+  + getSourceLocation(): Location
+  + getTargetLocation(): Location
+  + getTrackingNumber(): String
+  + getHistory(): List<Event>
+}
+
+enum MovementType {
+  RECEIPT
+  ISSUE
+  TRANSFER
+  ADJUSTMENT
+  WRITE_OFF
+  RETURN
+  PRODUCTION_CONSUMPTION
+  PRODUCTION_OUTPUT
+}
+
+' Partner Management
+class Partner extends BaseModel {
+  - code: String
+  - name: String
+  - taxNumber: String
+  - address: Address
+  - contactInfo: ContactInfo
+  - type: PartnerType
+  - creditLimit: Money
+  - paymentTerms: PaymentTerms
+  - rating: PartnerRating
+  + getPriceLists(): Collection<PriceList>
+  + getOrders(): Collection<PurchaseOrder>
+  + getCurrentBalance(): Money
+  + isActive(): Boolean
+}
+
+enum PartnerType {
+  SUPPLIER
+  CUSTOMER
+  BOTH
+}
+
+class PartnerRating {
+  - score: Integer
+  - lastEvaluation: Date
+  - qualityScore: Integer
+  - deliveryScore: Integer
+  - priceScore: Integer
+}
+
+' Pricing Management
+class PriceList extends BaseModel {
+  - partnerId: Integer
+  - name: String
+  - validFrom: Date
+  - validTo: Date
+  - currency: Currency
+  - priority: Integer
+  + getItems(): Collection<PriceListItem>
+  + isActive(): Boolean
+  + getPartner(): Partner
+}
+
+class PriceListItem implements Priceable {
+  - priceListId: Integer
+  - productId: Integer
+  - unitPrice: Money
+  - minimumQuantity: Decimal
+  - discountPercent: Decimal
+  - volumeDiscounts: List<VolumeDiscount>
+  + getProduct(): Product
+  + getPriceList(): PriceList
+  + getPrice(): Decimal
+  + getCurrency(): String
+  + getPriceWithTax(): Decimal
+  + calculatePrice(quantity: Decimal): Money
+}
+
+class VolumeDiscount {
+  - fromQuantity: Decimal
+  - toQuantity: Decimal
+  - discountPercent: Decimal
+  - fixedPrice: Money
+}
+
+' Procurement Management
+class PurchaseOrder extends BaseModel implements Trackable, Validatable {
+  - orderNumber: String
+  - partnerId: Integer
+  - orderDate: Date
+  - deliveryDate: Date
+  - status: OrderStatus
+  - totalAmount: Money
+  - approvalStatus: ApprovalStatus
+  - approvedBy: User
+  - terms: OrderTerms
+  + getPartner(): Partner
+  + getLines(): Collection<OrderLine>
+  + getDeliveryProgress(): Decimal
+  + approve(): void
+  + reject(reason: String): void
+  + cancel(): void
+  + validate(): ValidationResult
+  + isValid(): Boolean
+  + getTrackingNumber(): String
+  + getHistory(): List<Event>
+}
+
+class OrderTerms {
+  - paymentTerms: PaymentTerms
+  - deliveryTerms: String
+  - warranty: String
+  - specialConditions: String
+}
+
+enum OrderStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  SENT
+  PARTIALLY_DELIVERED
+  DELIVERED
+  CANCELLED
+  CLOSED
+}
+
+enum ApprovalStatus {
+  NOT_REQUIRED
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+class OrderLine extends BaseModel {
+  - orderId: Integer
+  - productId: Integer
+  - quantity: Decimal
+  - unitPrice: Money
+  - discountPercent: Decimal
+  - tax: Tax
+  - deliveredQuantity: Decimal
+  - invoicedQuantity: Decimal
+  + getOrder(): PurchaseOrder
+  + getProduct(): Product
+  + getLineTotal(): Money
+  + getOutstandingQuantity(): Decimal
+}
+
+class Tax {
+  - taxCode: String
+  - rate: Decimal
+  - amount: Money
+  + calculate(baseAmount: Money): Money
+}
+
+' Stock Taking
+class StockTaking extends BaseModel implements Validatable {
+  - stockTakingId: String
+  - date: Date
+  - warehouseId: Integer
+  - status: StockTakingStatus
+  - type: StockTakingType
+  - notes: String
+  - approvedBy: User
+  + getWarehouse(): Warehouse
+  + getItems(): Collection<StockTakingItem>
+  + close(): void
+  + approve(): void
+  + generateAdjustments(): Collection<StockMovement>
+  + validate(): ValidationResult
+  + isValid(): Boolean
+}
+
+enum StockTakingStatus {
+  PLANNED
+  IN_PROGRESS
+  UNDER_REVIEW
+  APPROVED
+  CLOSED
+  CANCELLED
+}
+
+enum StockTakingType {
+  FULL
+  CYCLE_COUNT
+  RANDOM
+  ABC_BASED
+}
+
+class StockTakingItem extends BaseModel {
+  - stockTakingId: Integer
+  - productId: Integer
+  - locationId: Integer
+  - countedQuantity: Decimal
+  - systemQuantity: Decimal
+  - difference: Decimal
+  - countedBy: User
+  - verifiedBy: User
+  + getStockTaking(): StockTaking
+  + getProduct(): Product
+  + calculateDifference(): Decimal
+  + requiresVerification(): Boolean
+}
+
+' INTRASTAT Reporting
+class IntrastatReport extends BaseModel {
+  - year: Integer
+  - month: Integer
+  - direction: IntrastatDirection
+  - status: ReportStatus
+  - submittedDate: Date
+  - submittedBy: User
+  + getLines(): Collection<IntrastatLine>
+  + generate(): void
+  + validate(): ValidationResult
+  + submit(): void
+  + exportToXML(): String
+}
+
+class IntrastatLine {
+  - reportId: Integer
+  - partnerCountry: String
+  - productId: Integer
+  - commodityCode: String
+  - quantity: Decimal
+  - weight: Decimal
+  - value: Money
+  - transactionType: TransactionType
+  + getProduct(): Product
+  + getReport(): IntrastatReport
+}
+
+enum IntrastatDirection {
+  ARRIVAL
+  DISPATCH
+}
+
+enum ReportStatus {
+  DRAFT
+  VALIDATED
+  SUBMITTED
+  ACCEPTED
+  REJECTED
+}
+
+' Event Sourcing
+class Event {
+  - eventId: UUID
+  - entityType: String
+  - entityId: UUID
+  - eventType: String
+  - timestamp: DateTime
+  - userId: User
+  - data: Map<String, Object>
+  - metadata: Map<String, Object>
+}
+
+' Relationships
+Product "1" --> "0..*" Batch
+Product "1" --> "0..*" Stock
+Product "*" --> "1" Category
+Category "0..*" --> "0..1" Category : parent
+
+Warehouse "1" --> "0..*" Stock
+Warehouse "1" --> "0..*" Location
+Stock "*" --> "0..1" Batch
+Stock "*" --> "0..1" Location
+
+StockMovement "*" --> "1" Product
+StockMovement "*" --> "0..1" Location : source
+StockMovement "*" --> "0..1" Location : target
+
+Partner "1" --> "0..*" PriceList
+Partner "1" --> "0..*" PurchaseOrder
+
+PriceList "1" --> "0..*" PriceListItem
+PriceListItem "*" --> "1" Product
+
+PurchaseOrder "1" --> "0..*" OrderLine
+OrderLine "*" --> "1" Product
+
+StockTaking "*" --> "1" Warehouse
+StockTaking "1" --> "0..*" StockTakingItem
+StockTakingItem "*" --> "1" Product
+StockTakingItem "*" --> "0..1" Location
+
+IntrastatReport "1" --> "0..*" IntrastatLine
+IntrastatLine "*" --> "1" Product
+
+@enduml

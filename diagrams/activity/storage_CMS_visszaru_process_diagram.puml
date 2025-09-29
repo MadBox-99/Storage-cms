@@ -1,0 +1,140 @@
+@startuml Visszáru kezelési folyamat
+
+!define RECTANGLE class
+
+title Visszáru kezelési folyamat
+
+|#LightBlue|Raktáros/Vevő|
+start
+:Probléma észlelése;
+note right
+  - Sérült áru
+  - Hibás minőség
+  - Nem megfelelő termék
+  - Mennyiségi eltérés
+  - Lejárt szavatosság
+end note
+
+:Visszáru igény indítása;
+
+|#LightGreen|Beszerző/Ügyfélszolgálat|
+:Visszáru igény fogadása;
+:Előzetes értékelés;
+
+if (Visszáru jogos?) then (igen)
+  :Visszáru ok rögzítése;
+  note left
+    Okkategóriák:
+    * Minőségi hiba
+    * Szállítási sérülés
+    * Téves szállítás
+    * Mennyiségi eltérés
+    * Lejárat/szavatosság
+  end note
+
+  :Visszáru engedély száma\n(RMA) generálása;
+
+  |#LightBlue|Raktáros|
+  :Visszáru szállítólevél\nelőkészítése;
+  :Áru elkülönítése\nvissszáru raktárban;
+
+  fork
+    :Fotódokumentáció készítése;
+  fork again
+    :Mennyiség ellenőrzése;
+  fork again
+    :Állapot dokumentálása;
+  end fork
+
+  :Visszáru csomagolása;
+
+  |#Orange|Szállító/Beszállító|
+  :Visszáru értesítés fogadása;
+  :Szállítás megszervezése;
+  :Áru elszállítása;
+
+  |#LightBlue|Raktáros|
+  :Átadás-átvételi\njegyzőkönyv aláírása;
+  :Készlet kivezetése;
+
+  |#Orange|Szállító/Beszállító|
+  :Visszáru átvétele;
+  :Áru vizsgálata;
+
+  if (Reklamáció elfogadva?) then (igen)
+
+    |#Yellow|Döntéshozó|
+    :Kompenzáció típusának\nmeghatározása;
+
+    switch (Kompenzáció típusa?)
+    case (Jóváírás)
+      |#LightCoral|Pénzügy|
+      :Jóváírási értesítő\nfogadása;
+      :Jóváírás könyvelése;
+      :Beszállítói egyenleg\nfrissítése;
+
+    case (Csere)
+      |#Orange|Szállító/Beszállító|
+      :Csereáru előkészítése;
+      :Csereáru szállítása;
+
+      |#LightBlue|Raktáros|
+      :Csereáru fogadása;
+      :Minőség ellenőrzése;
+      :Bevételezés;
+      :Készlet frissítése;
+
+    case (Javítás)
+      |#Orange|Szállító/Beszállító|
+      :Javítás elvégzése;
+      :Javított áru visszaszállítása;
+
+      |#LightBlue|Raktáros|
+      :Javított áru átvétele;
+      :Működés ellenőrzése;
+      :Visszavételezés;
+
+    endswitch
+
+    |#LightGreen|Beszerző|
+    :Visszáru dosszié lezárása;
+
+  else (nem)
+    :Reklamáció elutasítása;
+    :Indoklás dokumentálása;
+
+    |#LightBlue|Raktáros|
+    if (Áru visszaszállítható?) then (igen)
+      :Áru visszafogadása;
+      :Visszavételezés;
+    else (nem)
+      :Selejtezési folyamat;
+      :Megsemmisítés dokumentálása;
+    endif
+
+  endif
+
+else (nem)
+  :Visszáru elutasítása;
+  :Indoklás megküldése;
+  stop
+endif
+
+|#LightPink|Minőségbiztosítás|
+:Visszáru statisztika\nfrissítése;
+:Beszállító értékelés\nfrissítése;
+
+if (Ismétlődő probléma?) then (igen)
+  :Minőségi audit\nkezdeményezése;
+  :Beszállító fejlesztési\nterv készítése;
+else (nem)
+  :Eset lezárása;
+endif
+
+|#LightGray|Controlling|
+:Visszáru költségek\nelszámolása;
+:Riport készítése;
+
+stop
+
+@enduml
