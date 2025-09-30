@@ -30,6 +30,7 @@ return new class() extends Migration
             $table->integer('max_stock')->default(0);
             $table->integer('reorder_point')->default(0);
             $table->decimal('price', 10, 2)->default(0);
+            $table->decimal('standard_cost', 15, 4)->nullable();
             $table->string('status', 50)->default('ACTIVE');
             $table->timestamps();
             $table->softDeletes();

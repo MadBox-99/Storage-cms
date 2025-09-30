@@ -22,6 +22,7 @@ return new class() extends Migration
             $table->integer('capacity')->nullable();
             $table->unsignedBigInteger('manager_id')->nullable(); // FK nélkül először
             $table->boolean('is_active')->default(true);
+            $table->string('valuation_method')->default('fifo');
             $table->timestamps();
             $table->softDeletes();
 

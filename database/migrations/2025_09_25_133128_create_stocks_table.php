@@ -26,6 +26,8 @@ return new class() extends Migration
             $table->integer('maximum_stock')->default(0);
             $table->foreignIdFor(Batch::class)->nullable()->constrained();
             $table->string('status', 50)->default('AVAILABLE');
+            $table->decimal('unit_cost', 15, 4)->default(0);
+            $table->decimal('total_value', 15, 2)->default(0);
             $table->timestamps();
             $table->softDeletes();
 

@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Receipts;
 
+use App\Enums\NavigationGroup;
 use App\Filament\Resources\Receipts\Pages\CreateReceipt;
 use App\Filament\Resources\Receipts\Pages\EditReceipt;
 use App\Filament\Resources\Receipts\Pages\ListReceipts;
@@ -10,19 +13,18 @@ use App\Filament\Resources\Receipts\Schemas\ReceiptForm;
 use App\Filament\Resources\Receipts\Schemas\ReceiptInfolist;
 use App\Filament\Resources\Receipts\Tables\ReceiptsTable;
 use App\Models\Receipt;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
 
-class ReceiptResource extends Resource
+final class ReceiptResource extends Resource
 {
     protected static ?string $model = Receipt::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|UnitEnum|null $navigationGroup = NavigationGroup::PURCHASING;
 
     public static function form(Schema $schema): Schema
     {

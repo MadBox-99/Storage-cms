@@ -37,12 +37,6 @@ final class Employee extends Model
         return $this->belongsTo(Warehouse::class);
     }
 
-    // Helper methods
-    public function getFullName(): string
-    {
-        return mb_trim($this->first_name.' '.$this->last_name);
-    }
-
     public function hasAccess(Warehouse $warehouse): bool
     {
         return $this->warehouse_id === $warehouse->id || $this->user->is_super_admin;

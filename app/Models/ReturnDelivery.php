@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\ReturnReason;
+use App\Enums\ReturnStatus;
+use App\Enums\ReturnType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 final class ReturnDelivery extends Model
 {
@@ -86,22 +90,61 @@ final class ReturnDelivery extends Model
 
     public function process(): void
     {
-        $this->update(['status' => 'PROCESSED']);
+        $this->update(['status' => ReturnStatus::PROCESSED]);
     }
 
     public function approve(): void
     {
-        $this->update(['status' => 'APPROVED']);
+        $this->update(['status' => ReturnStatus::APPROVED]);
     }
 
     public function reject(): void
     {
-        $this->update(['status' => 'REJECTED']);
+        $this->update(['status' => ReturnStatus::REJECTED]);
+    }
+
+    public function restock(): void
+    {
+        DB::transaction(function (): void {
+            foreach ($this->returnLines as $line) {
+                if ($line->canBeRestocked()) {
+                    $stock = Stock::query()->firstOrCreate(
+                        [
+                            'product_id' => $line->product_id,
+                            'warehouse_id' => $this->warehouse_id,
+                        ],
+                        [
+                            'quantity' => 0,
+                            'reserved_quantity' => 0,
+                            'minimum_stock' => 0,
+                            'maximum_stock' => 1000,
+                        ]
+                    );
+
+                    $stock->increment('quantity', $line->quantity);
+                }
+            }
+
+            $this->update(['status' => ReturnStatus::RESTOCKED]);
+        });
+    }
+
+    public function isCustomerReturn(): bool
+    {
+        return $this->type === ReturnType::CUSTOMER_RETURN;
+    }
+
+    public function isSupplierReturn(): bool
+    {
+        return $this->type === ReturnType::SUPPLIER_RETURN;
     }
 
     protected function casts(): array
     {
         return [
+            'type' => ReturnType::class,
+            'status' => ReturnStatus::class,
+            'reason' => ReturnReason::class,
             'return_date' => 'date',
             'total_amount' => 'decimal:2',
         ];

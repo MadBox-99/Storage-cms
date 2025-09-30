@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Products\Tables;
 
+use App\Models\Product;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
@@ -50,6 +53,25 @@ final class ProductsTable
                     ->sortable(),
                 TextColumn::make('status')
                     ->searchable(),
+
+                IconColumn::make('stock_alert')
+                    ->label('Stock Alert')
+                    ->icon(fn (Product $record): string => match (true) {
+                        $record->needsReorder() => 'heroicon-o-exclamation-triangle',
+                        $record->getTotalStock() === 0 => 'heroicon-o-x-circle',
+                        default => 'heroicon-o-check-circle',
+                    })
+                    ->color(fn (Product $record): string => match (true) {
+                        $record->getTotalStock() === 0 => 'danger',
+                        $record->needsReorder() => 'warning',
+                        default => 'success',
+                    })
+                    ->tooltip(fn (Product $record): string => match (true) {
+                        $record->getTotalStock() === 0 => 'Out of stock',
+                        $record->needsReorder() => 'Reorder point reached - Current: '.$record->getTotalStock().', Reorder at: '.$record->reorder_point,
+                        default => 'Stock level OK',
+                    }),
+
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -77,6 +99,7 @@ final class ProductsTable
                     RestoreBulkAction::make(),
                 ]),
             ])
+            ->recordActionsPosition(RecordActionsPosition::BeforeCells)
             ->groups([
                 'unit_of_measure',
                 'category.name',

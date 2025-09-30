@@ -18,15 +18,21 @@ final class Batch extends Model
 
     protected $fillable = [
         'batch_number',
+        'product_id',
+        'supplier_id',
         'manufacture_date',
         'expiry_date',
         'serial_numbers',
         'quantity',
-        'supplier_id',
         'quality_status',
     ];
 
     // Relationships
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class);
+    }
+
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);

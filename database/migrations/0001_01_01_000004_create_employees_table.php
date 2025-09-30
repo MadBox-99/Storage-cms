@@ -16,7 +16,7 @@ return new class() extends Migration
     {
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class)->constrained();
+            $table->foreignIdFor(User::class)->nullable()->constrained()->nullOnDelete();
             $table->unsignedBigInteger('warehouse_id')->nullable(); // FK nélkül először
             $table->string('employee_code', 50)->unique();
             $table->string('first_name');
@@ -25,6 +25,7 @@ return new class() extends Migration
             $table->string('department', 100)->nullable();
             $table->string('phone', 50)->nullable();
             $table->boolean('is_active')->default(true);
+            $table->string('full_name')->virtualAs('concat(first_name, \' \', last_name)');
             $table->timestamps();
             $table->softDeletes();
 

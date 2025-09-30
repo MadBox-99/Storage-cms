@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\ProductCondition;
+use App\Enums\ReturnReason;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -40,17 +42,19 @@ final class ReturnLine extends Model
 
     public function canBeRestocked(): bool
     {
-        return in_array($this->condition, ['GOOD', 'MINOR_DAMAGE']);
+        return $this->condition->canBeRestocked();
     }
 
     public function requiresDisposal(): bool
     {
-        return in_array($this->condition, ['DAMAGED', 'EXPIRED', 'DEFECTIVE']);
+        return $this->condition->requiresDisposal();
     }
 
     protected function casts(): array
     {
         return [
+            'condition' => ProductCondition::class,
+            'return_reason' => ReturnReason::class,
             'unit_price' => 'decimal:2',
         ];
     }

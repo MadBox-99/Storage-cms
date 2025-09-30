@@ -27,6 +27,7 @@ return new class() extends Migration
             $table->decimal('total_amount', 10, 2)->default(0);
             $table->string('notes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->index(['status']);
             $table->index(['receipt_date']);

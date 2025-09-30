@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\OrderStatus;
+use App\Enums\OrderType;
 use App\Enums\ProductStatus;
 use App\Enums\UnitType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -31,6 +33,7 @@ final class Product extends Model
         'max_stock',
         'reorder_point',
         'price',
+        'standard_cost',
         'status',
     ];
 
@@ -78,11 +81,41 @@ final class Product extends Model
         return $this->getTotalStock() <= $this->reorder_point;
     }
 
+    public function getExpectedArrivals()
+    {
+        return Order::query()
+            ->whereHas('orderLines', fn ($query) => $query->where('product_id', $this->id))
+            ->with(['orderLines' => fn ($query) => $query->where('product_id', $this->id), 'supplier'])
+            ->where('type', OrderType::PURCHASE)
+            ->whereIn('status', [
+                OrderStatus::CONFIRMED,
+                OrderStatus::PROCESSING,
+                OrderStatus::SHIPPED,
+            ])
+            ->whereNotNull('delivery_date')
+            ->orderBy('delivery_date', 'asc')
+            ->get();
+    }
+
+    public function getTotalExpectedQuantity(): int
+    {
+        $total = 0;
+
+        foreach ($this->getExpectedArrivals() as $order) {
+            foreach ($order->orderLines as $line) {
+                $total += $line->quantity;
+            }
+        }
+
+        return $total;
+    }
+
     protected function casts(): array
     {
         return [
             'weight' => 'decimal:2',
             'price' => 'decimal:2',
+            'standard_cost' => 'decimal:4',
             'min_stock' => 'integer',
             'max_stock' => 'integer',
             'reorder_point' => 'integer',
