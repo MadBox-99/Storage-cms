@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Models\Customer;
 use App\Models\Employee;
 use App\Models\Product;
 use App\Models\Stock;
 use App\Models\User;
-use App\Models\Warehouse;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Warehouse;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -38,7 +39,7 @@ final class DatabaseSeeder extends Seeder
             ->has(Stock::factory()->count(5))
             ->has(Employee::factory()->count(3))
             ->create();
-        /* Employee::factory()->has($warehouses)->count(10)->create(); */
+        Customer::factory()->count(10)->create();
 
     }
 }

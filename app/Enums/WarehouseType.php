@@ -4,33 +4,24 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum WarehouseType: string
+use Filament\Support\Contracts\HasLabel;
+
+enum WarehouseType: string implements HasLabel
 {
-    case MAIN = 'MAIN';
-    case DISTRIBUTION = 'DISTRIBUTION';
-    case RETAIL = 'RETAIL';
-    case RETURN = 'RETURN';
-    case QUARANTINE = 'QUARANTINE';
+    case MAIN = 'main';
+    case DISTRIBUTION = 'distribution';
+    case RETAIL = 'retail';
+    case RETURN = 'return';
+    case QUARANTINE = 'quarantine';
 
-    public function label(): string
+    public function getLabel(): string
     {
         return match ($this) {
-            self::MAIN => 'Main Warehouse',
-            self::DISTRIBUTION => 'Distribution Center',
-            self::RETAIL => 'Retail Store',
-            self::RETURN => 'Return Center',
-            self::QUARANTINE => 'Quarantine',
-        };
-    }
-
-    public function icon(): string
-    {
-        return match ($this) {
-            self::MAIN => 'building-office',
-            self::DISTRIBUTION => 'truck',
-            self::RETAIL => 'shopping-cart',
-            self::RETURN => 'arrow-uturn-left',
-            self::QUARANTINE => 'exclamation-triangle',
+            self::MAIN => __('Main Warehouse'),
+            self::DISTRIBUTION => __('Distribution Center'),
+            self::RETAIL => __('Retail Store'),
+            self::RETURN => __('Return Center'),
+            self::QUARANTINE => __('Quarantine'),
         };
     }
 }

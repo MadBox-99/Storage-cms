@@ -4,14 +4,19 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum ProductStatus: string
-{
-    case ACTIVE = 'ACTIVE';
-    case INACTIVE = 'INACTIVE';
-    case DISCONTINUED = 'DISCONTINUED';
-    case OUT_OF_STOCK = 'OUT_OF_STOCK';
+use Filament\Support\Colors\Color;
+use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasLabel;
+use Illuminate\Contracts\Support\Htmlable;
 
-    public function label(): string
+enum ProductStatus: string implements HasColor, HasLabel
+{
+    case ACTIVE = 'active';
+    case INACTIVE = 'inactive';
+    case DISCONTINUED = 'discontinued';
+    case OUT_OF_STOCK = 'out_of_stock';
+
+    public function getLabel(): string|Htmlable|null
     {
         return match ($this) {
             self::ACTIVE => 'Active',
@@ -21,13 +26,13 @@ enum ProductStatus: string
         };
     }
 
-    public function color(): string
+    public function getColor(): string|array|null
     {
         return match ($this) {
-            self::ACTIVE => 'green',
-            self::INACTIVE => 'gray',
-            self::DISCONTINUED => 'red',
-            self::OUT_OF_STOCK => 'orange',
+            self::ACTIVE => Color::Green,
+            self::INACTIVE => Color::Gray,
+            self::DISCONTINUED => Color::Red,
+            self::OUT_OF_STOCK => Color::Orange,
         };
     }
 }

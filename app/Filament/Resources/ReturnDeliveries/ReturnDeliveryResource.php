@@ -6,6 +6,7 @@ namespace App\Filament\Resources\ReturnDeliveries;
 
 use App\Enums\NavigationGroup;
 use App\Filament\Resources\ReturnDeliveries\Pages\CreateReturnDelivery;
+use App\Filament\Resources\ReturnDeliveries\Pages\CreateReturnDeliveryWithSteps;
 use App\Filament\Resources\ReturnDeliveries\Pages\EditReturnDelivery;
 use App\Filament\Resources\ReturnDeliveries\Pages\ListReturnDeliveries;
 use App\Filament\Resources\ReturnDeliveries\Pages\ViewReturnDelivery;
@@ -26,7 +27,7 @@ final class ReturnDeliveryResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = NavigationGroup::INVENTORY_MANAGEMENT;
 
-    protected static ?string $navigationLabel = 'Returns';
+    protected static ?string $navigationLabel = 'Return Deliveries';
 
     protected static ?int $navigationSort = 4;
 
@@ -57,6 +58,7 @@ final class ReturnDeliveryResource extends Resource
         return [
             'index' => ListReturnDeliveries::route('/'),
             'create' => CreateReturnDelivery::route('/create'),
+            'create-with-steps' => CreateReturnDeliveryWithSteps::route('/create-with-steps'),
             'view' => ViewReturnDelivery::route('/{record}'),
             'edit' => EditReturnDelivery::route('/{record}/edit'),
         ];

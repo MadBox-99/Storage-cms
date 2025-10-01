@@ -72,7 +72,7 @@ final class ReturnDeliveryForm
                             ->visible(fn (Get $get) => $get('type') === ReturnType::CUSTOMER_RETURN),
 
                         Select::make('supplier_id')
-                            ->relationship('supplier', 'name')
+                            ->relationship('supplier', 'company_name')
                             ->label('Supplier')
                             ->searchable()
                             ->preload()

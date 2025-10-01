@@ -4,24 +4,18 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum ReturnType: string
-{
-    case CUSTOMER_RETURN = 'CUSTOMER_RETURN';
-    case SUPPLIER_RETURN = 'SUPPLIER_RETURN';
+use Filament\Support\Contracts\HasLabel;
 
-    public function label(): string
+enum ReturnType: string implements HasLabel
+{
+    case CUSTOMER_RETURN = 'customer_return';
+    case SUPPLIER_RETURN = 'supplier_return';
+
+    public function getLabel(): string
     {
         return match ($this) {
             self::CUSTOMER_RETURN => 'Customer Return',
             self::SUPPLIER_RETURN => 'Supplier Return',
-        };
-    }
-
-    public function color(): string
-    {
-        return match ($this) {
-            self::CUSTOMER_RETURN => 'warning',
-            self::SUPPLIER_RETURN => 'info',
         };
     }
 }

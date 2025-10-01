@@ -10,6 +10,7 @@ enum OrderStatus: string
     case CONFIRMED = 'CONFIRMED';
     case PROCESSING = 'PROCESSING';
     case SHIPPED = 'SHIPPED';
+    case COMPLETED = 'COMPLETED';
     case DELIVERED = 'DELIVERED';
     case CANCELLED = 'CANCELLED';
 
@@ -20,6 +21,7 @@ enum OrderStatus: string
             self::CONFIRMED => 'Confirmed',
             self::PROCESSING => 'Processing',
             self::SHIPPED => 'Shipped',
+            self::COMPLETED => 'Completed',
             self::DELIVERED => 'Delivered',
             self::CANCELLED => 'Cancelled',
         };
@@ -32,6 +34,7 @@ enum OrderStatus: string
             self::CONFIRMED => 'blue',
             self::PROCESSING => 'yellow',
             self::SHIPPED => 'indigo',
+            self::COMPLETED => 'teal',
             self::DELIVERED => 'green',
             self::CANCELLED => 'red',
         };
@@ -48,7 +51,7 @@ enum OrderStatus: string
     public function isFinal(): bool
     {
         return match ($this) {
-            self::DELIVERED, self::CANCELLED => true,
+            self::DELIVERED, self::CANCELLED, self::COMPLETED => true,
             default => false,
         };
     }
