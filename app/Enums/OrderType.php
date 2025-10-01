@@ -4,22 +4,24 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum OrderType: string
-{
-    case PURCHASE = 'PURCHASE';
-    case SALES = 'SALES';
-    case SALE = 'SALE';
-    case TRANSFER = 'TRANSFER';
-    case RETURN = 'RETURN';
+use Filament\Support\Contracts\HasLabel;
 
-    public function label(): string
+enum OrderType: string implements HasLabel
+{
+    case PURCHASE = 'purchase';
+    case SALES = 'sales';
+    case SALE = 'sale';
+    case TRANSFER = 'transfer';
+    case RETURN = 'return';
+
+    public function getLabel(): string
     {
         return match ($this) {
-            self::PURCHASE => 'Purchase Order',
-            self::SALES => 'Sales Order',
-            self::SALE => 'Sale Order',
-            self::TRANSFER => 'Transfer Order',
-            self::RETURN => 'Return Order',
+            self::PURCHASE => __('Purchase Order'),
+            self::SALES => __('Sales Order'),
+            self::SALE => __('Sale Order'),
+            self::TRANSFER => __('Transfer Order'),
+            self::RETURN => __('Return Order'),
         };
     }
 

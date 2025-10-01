@@ -14,6 +14,7 @@ enum NavigationGroup: string implements HasIcon, HasLabel
     case SALES = 'Sales';
     case PURCHASING = 'Purchasing';
     case ADMINISTRATION = 'Administration';
+    case INTRASTAT = 'Intrastat';
     case SETTINGS = 'Settings';
 
     public function getLabel(): string
@@ -23,6 +24,7 @@ enum NavigationGroup: string implements HasIcon, HasLabel
             self::SALES => __('Sales'),
             self::PURCHASING => __('Purchasing'),
             self::ADMINISTRATION => __('Administration'),
+            self::INTRASTAT => __('Intrastat'),
             self::SETTINGS => __('Settings'),
         };
     }
@@ -34,6 +36,7 @@ enum NavigationGroup: string implements HasIcon, HasLabel
             self::SALES => Heroicon::OutlinedShoppingCart,
             self::PURCHASING => Heroicon::OutlinedTruck,
             self::ADMINISTRATION => Heroicon::OutlinedUserGroup,
+            self::INTRASTAT => Heroicon::OutlinedGlobeEuropeAfrica,
             self::SETTINGS => Heroicon::OutlinedCog6Tooth,
         };
     }

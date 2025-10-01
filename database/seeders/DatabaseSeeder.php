@@ -41,5 +41,9 @@ final class DatabaseSeeder extends Seeder
             ->create();
         Customer::factory()->count(10)->create();
 
+        $this->call([
+            IntraStatSeeder::class,
+        ]);
+
     }
 }

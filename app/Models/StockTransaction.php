@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\StockTransactionType;
+use App\Observers\StockTransactionObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
+#[ObservedBy(StockTransactionObserver::class)]
 final class StockTransaction extends Model
 {
     use HasFactory;
@@ -64,6 +68,7 @@ final class StockTransaction extends Model
             'unit_cost' => 'decimal:4',
             'total_cost' => 'decimal:2',
             'remaining_quantity' => 'integer',
+            'type' => StockTransactionType::class,
         ];
     }
 }

@@ -7,11 +7,14 @@ namespace App\Models;
 use App\Enums\IntrastatDeliveryTerms;
 use App\Enums\IntrastatTransactionType;
 use App\Enums\IntrastatTransportMode;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 final class IntrastatLine extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'intrastat_declaration_id',
         'order_id',

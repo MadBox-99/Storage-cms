@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Inventory;
 
 use App\Enums\InventoryValuationMethod;
+use App\Enums\StockTransactionType;
 use App\Models\Product;
 use App\Models\Stock;
 use App\Models\StockTransaction;
@@ -33,7 +34,7 @@ final class InventoryValuationService
 
         $transactions = StockTransaction::query()
             ->where('stock_id', $stock->id)
-            ->where('type', 'in')
+            ->where('type', StockTransactionType::INBOUND)
             ->where('remaining_quantity', '>', 0)
             ->orderBy('created_at', 'asc')
             ->get();
@@ -58,7 +59,7 @@ final class InventoryValuationService
 
         $transactions = StockTransaction::query()
             ->where('stock_id', $stock->id)
-            ->where('type', 'in')
+            ->where('type', StockTransactionType::INBOUND)
             ->where('remaining_quantity', '>', 0)
             ->orderBy('created_at', 'desc')
             ->get();
@@ -80,7 +81,7 @@ final class InventoryValuationService
     {
         $totalQuantity = StockTransaction::query()
             ->where('stock_id', $stock->id)
-            ->where('type', 'in')
+            ->where('type', StockTransactionType::INBOUND)
             ->where('remaining_quantity', '>', 0)
             ->sum('remaining_quantity');
 
@@ -90,7 +91,7 @@ final class InventoryValuationService
 
         $totalCost = StockTransaction::query()
             ->where('stock_id', $stock->id)
-            ->where('type', 'in')
+            ->where('type', StockTransactionType::INBOUND)
             ->where('remaining_quantity', '>', 0)
             ->get()
             ->sum(fn ($t) => $t->remaining_quantity * (float) $t->unit_cost);
@@ -134,7 +135,7 @@ final class InventoryValuationService
             'stock_id' => $stock->id,
             'product_id' => $stock->product_id,
             'warehouse_id' => $stock->warehouse_id,
-            'type' => 'in',
+            'type' => StockTransactionType::INBOUND,
             'quantity' => $quantity,
             'unit_cost' => $unitCost,
             'total_cost' => $quantity * $unitCost,
@@ -174,7 +175,7 @@ final class InventoryValuationService
 
         $inTransactions = StockTransaction::query()
             ->where('stock_id', $stock->id)
-            ->where('type', 'in')
+            ->where('type', StockTransactionType::INBOUND)
             ->where('remaining_quantity', '>', 0)
             ->orderBy('created_at', 'asc')
             ->get();
@@ -190,7 +191,7 @@ final class InventoryValuationService
                 'stock_id' => $stock->id,
                 'product_id' => $stock->product_id,
                 'warehouse_id' => $stock->warehouse_id,
-                'type' => 'out',
+                'type' => StockTransactionType::OUTBOUND,
                 'quantity' => $consumeQty,
                 'unit_cost' => $inTransaction->unit_cost,
                 'total_cost' => $consumeQty * (float) $inTransaction->unit_cost,
@@ -215,7 +216,7 @@ final class InventoryValuationService
 
         $inTransactions = StockTransaction::query()
             ->where('stock_id', $stock->id)
-            ->where('type', 'in')
+            ->where('type', StockTransactionType::INBOUND)
             ->where('remaining_quantity', '>', 0)
             ->orderBy('created_at', 'desc')
             ->get();
@@ -231,7 +232,7 @@ final class InventoryValuationService
                 'stock_id' => $stock->id,
                 'product_id' => $stock->product_id,
                 'warehouse_id' => $stock->warehouse_id,
-                'type' => 'out',
+                'type' => StockTransactionType::OUTBOUND,
                 'quantity' => $consumeQty,
                 'unit_cost' => $inTransaction->unit_cost,
                 'total_cost' => $consumeQty * (float) $inTransaction->unit_cost,
@@ -253,7 +254,7 @@ final class InventoryValuationService
     {
         $totalQuantity = StockTransaction::query()
             ->where('stock_id', $stock->id)
-            ->where('type', 'in')
+            ->where('type', StockTransactionType::INBOUND)
             ->where('remaining_quantity', '>', 0)
             ->sum('remaining_quantity');
 
@@ -263,7 +264,7 @@ final class InventoryValuationService
 
         $totalCost = StockTransaction::query()
             ->where('stock_id', $stock->id)
-            ->where('type', 'in')
+            ->where('type', StockTransactionType::INBOUND)
             ->where('remaining_quantity', '>', 0)
             ->get()
             ->sum(fn ($t) => $t->remaining_quantity * (float) $t->unit_cost);
@@ -274,7 +275,7 @@ final class InventoryValuationService
             'stock_id' => $stock->id,
             'product_id' => $stock->product_id,
             'warehouse_id' => $stock->warehouse_id,
-            'type' => 'out',
+            'type' => StockTransactionType::OUTBOUND,
             'quantity' => $quantity,
             'unit_cost' => $averageCost,
             'total_cost' => $quantity * $averageCost,
@@ -286,7 +287,7 @@ final class InventoryValuationService
 
         $inTransactions = StockTransaction::query()
             ->where('stock_id', $stock->id)
-            ->where('type', 'in')
+            ->where('type', StockTransactionType::INBOUND)
             ->where('remaining_quantity', '>', 0)
             ->orderBy('created_at', 'asc')
             ->get();

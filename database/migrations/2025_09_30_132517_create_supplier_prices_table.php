@@ -24,6 +24,7 @@ return new class() extends Migration
             $table->date('valid_until')->nullable();
             $table->boolean('is_active')->default(true);
             $table->text('notes')->nullable();
+
             $table->timestamps();
 
             $table->unique(['product_id', 'supplier_id', 'valid_from']);

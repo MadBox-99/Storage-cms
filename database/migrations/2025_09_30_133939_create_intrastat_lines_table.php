@@ -39,8 +39,8 @@ return new class() extends Migration
 
             // Ország kódok (ISO 3166-1 alpha-2)
             $table->string('country_of_origin', 2)->nullable(); // Származási ország
-            $table->string('country_of_consignment', 2); // Feladás országa (érkezésnél)
-            $table->string('country_of_destination', 2); // Rendeltetési ország (feladásnál)
+            $table->string('country_of_consignment', 2)->nullable(); // Feladás országa (érkezésnél)
+            $table->string('country_of_destination', 2)->nullable(); // Rendeltetési ország (feladásnál)
 
             // Ügylet jellege
             $table->string('transaction_type', 2); // IntrastatTransactionType enum
@@ -49,8 +49,7 @@ return new class() extends Migration
             $table->string('transport_mode', 1); // IntrastatTransportMode enum
 
             // Szállítási feltétel
-            $table->string('delivery_terms', 3)->nullable(); // IntrastatDeliveryTerms enum
-
+            $table->string('delivery_terms', 3)->nullable(false); // IntrastatDeliveryTerms enum
             $table->text('description')->nullable();
             $table->timestamps();
 

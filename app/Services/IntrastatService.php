@@ -138,45 +138,55 @@ final class IntrastatService
     private function validateLine(IntrastatLine $line, int $lineNumber): array
     {
         $errors = [];
-        $prefix = "Line {$lineNumber}: ";
+        $prefix = "Sor {$lineNumber}: ";
 
-        // CN code validation
+        // CN code validation - KSH követelmény: kötelező 8 jegyű szám
         if (! $line->cn_code || mb_strlen($line->cn_code) !== 8 || ! ctype_digit($line->cn_code)) {
-            $errors[] = $prefix.'CN code must be exactly 8 digits';
+            $errors[] = $prefix.'KN kód kötelező, pontosan 8 számjegyből kell állnia';
         }
 
-        // Net mass validation
+        // Net mass validation - KSH követelmény: minimum 0.001 kg
         if (! $line->net_mass || $line->net_mass < 0.001) {
-            $errors[] = $prefix.'Net mass must be at least 0.001 kg';
+            $errors[] = $prefix.'Nettó tömeg kötelező, minimum 0.001 kg';
         }
 
-        // Invoice value validation
+        // Invoice value validation - KSH követelmény: minimum 1 HUF
         if (! $line->invoice_value || $line->invoice_value < 1) {
-            $errors[] = $prefix.'Invoice value must be at least 1 HUF';
+            $errors[] = $prefix.'Számlaérték kötelező, minimum 1 HUF';
         }
 
-        // Country code validation (EU members only, excluding HU)
+        // Statistical value validation
+        if (! $line->statistical_value || $line->statistical_value < 1) {
+            $errors[] = $prefix.'Statisztikai érték kötelező, minimum 1 HUF';
+        }
+
+        // Country code validation - KSH követelmény: EU tagállamok, HU kivételével
         $euCountries = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'];
 
         if ($line->country_of_consignment && ! in_array($line->country_of_consignment, $euCountries, true)) {
-            $errors[] = $prefix.'Country of consignment must be an EU member state (excluding HU)';
+            $errors[] = $prefix.'Feladás országa érvénytelen (csak EU tagállamok, HU kivételével)';
         }
 
         if ($line->country_of_destination && ! in_array($line->country_of_destination, $euCountries, true)) {
-            $errors[] = $prefix.'Country of destination must be an EU member state (excluding HU)';
+            $errors[] = $prefix.'Rendeltetési ország érvénytelen (csak EU tagállamok, HU kivételével)';
         }
 
-        // Required fields
+        // Required fields - KSH követelmények
         if (! $line->transaction_type) {
-            $errors[] = $prefix.'Transaction type is required';
+            $errors[] = $prefix.'Ügylet jellege kötelező';
         }
 
         if (! $line->transport_mode) {
-            $errors[] = $prefix.'Transport mode is required';
+            $errors[] = $prefix.'Szállítási mód kötelező';
         }
 
         if (! $line->delivery_terms) {
-            $errors[] = $prefix.'Delivery terms are required';
+            $errors[] = $prefix.'Szállítási feltétel kötelező (KSH követelmény)';
+        }
+
+        // Quantity validation
+        if (! $line->quantity || $line->quantity <= 0) {
+            $errors[] = $prefix.'Mennyiség kötelező és pozitív kell legyen';
         }
 
         return $errors;

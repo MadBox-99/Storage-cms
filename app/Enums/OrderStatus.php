@@ -4,30 +4,34 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum OrderStatus: string
-{
-    case DRAFT = 'DRAFT';
-    case CONFIRMED = 'CONFIRMED';
-    case PROCESSING = 'PROCESSING';
-    case SHIPPED = 'SHIPPED';
-    case COMPLETED = 'COMPLETED';
-    case DELIVERED = 'DELIVERED';
-    case CANCELLED = 'CANCELLED';
+use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasLabel;
+use Illuminate\Contracts\Support\Htmlable;
 
-    public function label(): string
+enum OrderStatus: string implements HasColor, HasLabel
+{
+    case DRAFT = 'draft';
+    case CONFIRMED = 'confirmed';
+    case PROCESSING = 'processing';
+    case SHIPPED = 'shipped';
+    case COMPLETED = 'completed';
+    case DELIVERED = 'delivered';
+    case CANCELLED = 'cancelled';
+
+    public function getLabel(): string|Htmlable|null
     {
         return match ($this) {
-            self::DRAFT => 'Draft',
-            self::CONFIRMED => 'Confirmed',
-            self::PROCESSING => 'Processing',
-            self::SHIPPED => 'Shipped',
-            self::COMPLETED => 'Completed',
-            self::DELIVERED => 'Delivered',
-            self::CANCELLED => 'Cancelled',
+            self::DRAFT => __('Draft'),
+            self::CONFIRMED => __('Confirmed'),
+            self::PROCESSING => __('Processing'),
+            self::SHIPPED => __('Shipped'),
+            self::COMPLETED => __('Completed'),
+            self::DELIVERED => __('Delivered'),
+            self::CANCELLED => __('Cancelled'),
         };
     }
 
-    public function color(): string
+    public function getColor(): string|array|null
     {
         return match ($this) {
             self::DRAFT => 'gray',

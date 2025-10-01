@@ -178,29 +178,150 @@ it('calculates product total value across warehouses', function () {
     expect($totalValue)->toBe(1600.0);
 });
 
-it('calculates category total value', function () {
-    $warehouse = Warehouse::factory()->create(['valuation_method' => InventoryValuationMethod::FIFO]);
-    $category = Category::factory()->create();
-    $product1 = Product::factory()->create(['category_id' => $category->id]);
-    $product2 = Product::factory()->create(['category_id' => $category->id]);
+describe('getCategoryTotalValue', function () {
+    it('calculates category total value with single warehouse', function () {
+        $warehouse = Warehouse::factory()->create(['valuation_method' => InventoryValuationMethod::FIFO]);
+        $category = Category::factory()->create();
+        $product1 = Product::factory()->create(['category_id' => $category->id]);
+        $product2 = Product::factory()->create(['category_id' => $category->id]);
 
-    $stock1 = Stock::factory()->create([
-        'product_id' => $product1->id,
-        'warehouse_id' => $warehouse->id,
-        'quantity' => 0,
-    ]);
+        $stock1 = Stock::factory()->create([
+            'product_id' => $product1->id,
+            'warehouse_id' => $warehouse->id,
+            'quantity' => 0,
+        ]);
 
-    $stock2 = Stock::factory()->create([
-        'product_id' => $product2->id,
-        'warehouse_id' => $warehouse->id,
-        'quantity' => 0,
-    ]);
+        $stock2 = Stock::factory()->create([
+            'product_id' => $product2->id,
+            'warehouse_id' => $warehouse->id,
+            'quantity' => 0,
+        ]);
 
-    $this->service->recordStockIn($stock1, 100, 10.00);
-    $this->service->recordStockIn($stock2, 50, 20.00);
+        $this->service->recordStockIn($stock1, 100, 10.00);
+        $this->service->recordStockIn($stock2, 50, 20.00);
 
-    $totalValue = $this->service->getCategoryTotalValue($category->id);
+        $totalValue = $this->service->getCategoryTotalValue($category->id);
 
-    // Total = (100 * 10) + (50 * 20) = 2000
-    expect($totalValue)->toBe(2000.0);
+        // Total = (100 * 10) + (50 * 20) = 2000
+        expect($totalValue)->toBe(2000.0);
+    });
+
+    it('calculates category total value across multiple warehouses', function () {
+        $warehouse1 = Warehouse::factory()->create(['valuation_method' => InventoryValuationMethod::FIFO]);
+        $warehouse2 = Warehouse::factory()->create(['valuation_method' => InventoryValuationMethod::FIFO]);
+        $category = Category::factory()->create();
+        $product1 = Product::factory()->create(['category_id' => $category->id]);
+        $product2 = Product::factory()->create(['category_id' => $category->id]);
+
+        $stock1 = Stock::factory()->create([
+            'product_id' => $product1->id,
+            'warehouse_id' => $warehouse1->id,
+            'quantity' => 0,
+        ]);
+
+        $stock2 = Stock::factory()->create([
+            'product_id' => $product2->id,
+            'warehouse_id' => $warehouse2->id,
+            'quantity' => 0,
+        ]);
+
+        $this->service->recordStockIn($stock1, 100, 15.00);
+        $this->service->recordStockIn($stock2, 80, 25.00);
+
+        $totalValue = $this->service->getCategoryTotalValue($category->id);
+
+        // Total = (100 * 15) + (80 * 25) = 1500 + 2000 = 3500
+        expect($totalValue)->toBe(3500.0);
+    });
+
+    it('returns zero for category with no stock', function () {
+        $category = Category::factory()->create();
+        Product::factory()->create(['category_id' => $category->id]);
+
+        $totalValue = $this->service->getCategoryTotalValue($category->id);
+
+        expect($totalValue)->toBe(0.0);
+    });
+
+    it('excludes products from other categories', function () {
+        $warehouse = Warehouse::factory()->create(['valuation_method' => InventoryValuationMethod::FIFO]);
+        $category1 = Category::factory()->create();
+        $category2 = Category::factory()->create();
+
+        $product1 = Product::factory()->create(['category_id' => $category1->id]);
+        $product2 = Product::factory()->create(['category_id' => $category2->id]);
+
+        $stock1 = Stock::factory()->create([
+            'product_id' => $product1->id,
+            'warehouse_id' => $warehouse->id,
+            'quantity' => 0,
+        ]);
+
+        $stock2 = Stock::factory()->create([
+            'product_id' => $product2->id,
+            'warehouse_id' => $warehouse->id,
+            'quantity' => 0,
+        ]);
+
+        $this->service->recordStockIn($stock1, 100, 10.00);
+        $this->service->recordStockIn($stock2, 50, 20.00);
+
+        $totalValue = $this->service->getCategoryTotalValue($category1->id);
+
+        // Should only include category1 products = 100 * 10 = 1000
+        expect($totalValue)->toBe(1000.0);
+    });
+
+    it('handles different valuation methods per warehouse', function () {
+        $warehouseFIFO = Warehouse::factory()->create(['valuation_method' => InventoryValuationMethod::FIFO]);
+        $warehouseLIFO = Warehouse::factory()->create(['valuation_method' => InventoryValuationMethod::LIFO]);
+        $category = Category::factory()->create();
+        $product1 = Product::factory()->create(['category_id' => $category->id]);
+        $product2 = Product::factory()->create(['category_id' => $category->id]);
+
+        $stock1 = Stock::factory()->create([
+            'product_id' => $product1->id,
+            'warehouse_id' => $warehouseFIFO->id,
+            'quantity' => 0,
+        ]);
+
+        $stock2 = Stock::factory()->create([
+            'product_id' => $product2->id,
+            'warehouse_id' => $warehouseLIFO->id,
+            'quantity' => 0,
+        ]);
+
+        $this->service->recordStockIn($stock1, 50, 10.00);
+        $this->service->recordStockIn($stock1, 50, 12.00);
+
+        $this->service->recordStockIn($stock2, 50, 10.00);
+        $this->service->recordStockIn($stock2, 50, 12.00);
+
+        $totalValue = $this->service->getCategoryTotalValue($category->id);
+
+        // Both should be (50*10 + 50*12) * 2 = 2200
+        expect($totalValue)->toBe(2200.0);
+    });
+
+    it('includes only available stock quantity', function () {
+        $warehouse = Warehouse::factory()->create(['valuation_method' => InventoryValuationMethod::FIFO]);
+        $category = Category::factory()->create();
+        $product = Product::factory()->create(['category_id' => $category->id]);
+
+        $stock = Stock::factory()->create([
+            'product_id' => $product->id,
+            'warehouse_id' => $warehouse->id,
+            'quantity' => 0,
+        ]);
+
+        $this->service->recordStockIn($stock, 100, 10.00);
+        $this->service->recordStockOut($stock, 60);
+
+        $stock->refresh();
+
+        $totalValue = $this->service->getCategoryTotalValue($category->id);
+
+        // Remaining: 40 * 10 = 400
+        expect($totalValue)->toBe(400.0);
+    });
 });

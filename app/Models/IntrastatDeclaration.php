@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\IntrastatDirection;
+use App\Enums\IntrastatStatus;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 final class IntrastatDeclaration extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'declaration_number',
         'direction',
@@ -40,7 +44,7 @@ final class IntrastatDeclaration extends Model
 
     public function canBeEdited(): bool
     {
-        return $this->status === 'DRAFT';
+        return $this->status->isEditable();
     }
 
     protected function casts(): array
@@ -52,6 +56,7 @@ final class IntrastatDeclaration extends Model
             'total_invoice_value' => 'decimal:2',
             'total_statistical_value' => 'decimal:2',
             'total_net_mass' => 'decimal:3',
+            'status' => IntrastatStatus::class,
         ];
     }
 }
