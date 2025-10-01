@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Enums\CustomerType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,23 +20,27 @@ final class CustomerFactory extends Factory
     public function definition(): array
     {
         return [
-            'first_name' => fake()->firstName(),
-            'last_name' => fake()->lastName(),
+            'customer_code' => 'CUST-'.fake()->unique()->numberBetween(10000, 99999),
+            'name' => fake()->company(),
             'email' => fake()->unique()->safeEmail(),
-            'phone_number' => fake()->phoneNumber(),
-            'address' => fake()->streetAddress(),
-            'city' => fake()->city(),
-            'state' => fake()->state(),
-            'postal_code' => fake()->postcode(),
-            'country' => fake()->country(),
-            'is_active' => fake()->boolean(90), // 90% chance of being active
+            'phone' => fake()->phoneNumber(),
+            'billing_address' => [
+                'street' => fake()->streetAddress(),
+                'city' => fake()->city(),
+                'state' => fake()->state(),
+                'postal_code' => fake()->postcode(),
+                'country' => fake()->country(),
+            ],
+            'shipping_address' => [
+                'street' => fake()->streetAddress(),
+                'city' => fake()->city(),
+                'state' => fake()->state(),
+                'postal_code' => fake()->postcode(),
+                'country' => fake()->country(),
+            ],
+            'credit_limit' => fake()->randomFloat(2, 1000, 50000),
+            'balance' => fake()->randomFloat(2, 0, 10000),
+            'type' => fake()->randomElement(CustomerType::class),
         ];
-    }
-
-    public function inactive(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'is_active' => false,
-        ]);
     }
 }

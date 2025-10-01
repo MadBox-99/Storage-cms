@@ -11,11 +11,11 @@ use App\Enums\ReturnType;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Get;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
 final class ReturnDeliveryForm
@@ -36,6 +36,7 @@ final class ReturnDeliveryForm
                         Select::make('type')
                             ->label('Return Type')
                             ->options(ReturnType::class)
+                            ->enum(ReturnType::class)
                             ->required()
                             ->live()
                             ->default(ReturnType::CUSTOMER_RETURN),
@@ -61,21 +62,21 @@ final class ReturnDeliveryForm
                             ->label('Related Order')
                             ->searchable()
                             ->preload()
-                            ->visible(fn (Get $get) => $get('type') === ReturnType::CUSTOMER_RETURN->value),
+                            ->visible(fn (Get $get) => $get('type') === ReturnType::CUSTOMER_RETURN),
 
                         Select::make('customer_id')
                             ->relationship('customer', 'name')
                             ->label('Customer')
                             ->searchable()
                             ->preload()
-                            ->visible(fn (Get $get) => $get('type') === ReturnType::CUSTOMER_RETURN->value),
+                            ->visible(fn (Get $get) => $get('type') === ReturnType::CUSTOMER_RETURN),
 
                         Select::make('supplier_id')
                             ->relationship('supplier', 'name')
                             ->label('Supplier')
                             ->searchable()
                             ->preload()
-                            ->visible(fn (Get $get) => $get('type') === ReturnType::SUPPLIER_RETURN->value),
+                            ->visible(fn (Get $get) => $get('type') === ReturnType::SUPPLIER_RETURN),
 
                         Select::make('processed_by')
                             ->relationship('processedBy', 'first_name')

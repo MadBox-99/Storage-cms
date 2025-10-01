@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\InventoryStatus;
+use App\Enums\InventoryType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 final class Inventory extends Model
 {
@@ -64,12 +67,38 @@ final class Inventory extends Model
 
     public function complete(): void
     {
-        $this->update(['status' => 'COMPLETED']);
+        $this->update(['status' => InventoryStatus::COMPLETED]);
     }
 
     public function approve(): void
     {
-        $this->update(['status' => 'APPROVED']);
+        $this->update(['status' => InventoryStatus::APPROVED]);
+    }
+
+    public function applyCorrections(): void
+    {
+        DB::transaction(function (): void {
+            foreach ($this->inventoryLines as $line) {
+                if ($line->hasVariance()) {
+                    $stock = Stock::query()->firstOrCreate(
+                        [
+                            'product_id' => $line->product_id,
+                            'warehouse_id' => $this->warehouse_id,
+                        ],
+                        [
+                            'quantity' => 0,
+                            'reserved_quantity' => 0,
+                            'minimum_stock' => 0,
+                            'maximum_stock' => 1000,
+                        ]
+                    );
+
+                    $stock->update(['quantity' => $line->actual_quantity]);
+                }
+            }
+
+            $this->update(['status' => InventoryStatus::APPROVED]);
+        });
     }
 
     public function hasVariances(): bool
@@ -85,6 +114,8 @@ final class Inventory extends Model
     protected function casts(): array
     {
         return [
+            'status' => InventoryStatus::class,
+            'type' => InventoryType::class,
             'inventory_date' => 'date',
             'variance_value' => 'decimal:2',
         ];

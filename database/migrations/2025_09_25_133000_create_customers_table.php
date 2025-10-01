@@ -15,16 +15,15 @@ return new class() extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
-            $table->string('first_name');
-            $table->string('last_name');
+            $table->string('customer_code')->unique();
+            $table->string('name');
             $table->string('email')->unique();
-            $table->string('phone_number')->nullable();
-            $table->text('address')->nullable();
-            $table->string('city')->nullable();
-            $table->string('state')->nullable();
-            $table->string('postal_code')->nullable();
-            $table->string('country')->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->string('phone')->nullable();
+            $table->json('billing_address')->nullable();
+            $table->json('shipping_address')->nullable();
+            $table->decimal('credit_limit', 10, 2)->default(0);
+            $table->decimal('balance', 10, 2)->default(0);
+            $table->string('type')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

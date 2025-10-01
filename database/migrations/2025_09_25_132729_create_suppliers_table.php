@@ -16,10 +16,13 @@ return new class() extends Migration
         Schema::create('suppliers', function (Blueprint $table) {
             $table->id();
             $table->string('code', 50)->unique();
+
             $table->string('company_name');
             $table->string('trade_name')->nullable();
             $table->json('headquarters')->nullable();
             $table->json('mailing_address')->nullable();
+            $table->string('country_code', 2)->default('HU');
+            $table->boolean('is_eu_member')->default(true);
             $table->string('tax_number', 50)->nullable();
             $table->string('eu_tax_number', 50)->nullable();
             $table->string('company_registration_number', 100)->nullable();

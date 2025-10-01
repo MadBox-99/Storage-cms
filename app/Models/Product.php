@@ -58,6 +58,35 @@ final class Product extends Model
         return $this->hasMany(Batch::class);
     }
 
+    public function supplierPrices(): HasMany
+    {
+        return $this->hasMany(SupplierPrice::class);
+    }
+
+    // Helper methods
+    public function getActiveSupplierPrices()
+    {
+        return $this->supplierPrices()
+            ->where('is_active', true)
+            ->where(function ($query): void {
+                $query->whereNull('valid_from')
+                    ->orWhere('valid_from', '<=', now());
+            })
+            ->where(function ($query): void {
+                $query->whereNull('valid_until')
+                    ->orWhere('valid_until', '>=', now());
+            })
+            ->with('supplier')
+            ->get();
+    }
+
+    public function getBestPrice(): ?SupplierPrice
+    {
+        return $this->getActiveSupplierPrices()
+            ->sortBy('price')
+            ->first();
+    }
+
     // Helper methods
     public function isAvailable(): bool
     {

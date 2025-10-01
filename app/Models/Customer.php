@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\CustomerType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -50,6 +51,7 @@ final class Customer extends Model
             'shipping_address' => 'array',
             'credit_limit' => 'decimal:2',
             'balance' => 'decimal:2',
+            'type' => CustomerType::class,
         ];
     }
 }

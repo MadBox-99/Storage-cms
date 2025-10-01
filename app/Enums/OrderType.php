@@ -8,6 +8,7 @@ enum OrderType: string
 {
     case PURCHASE = 'PURCHASE';
     case SALES = 'SALES';
+    case SALE = 'SALE';
     case TRANSFER = 'TRANSFER';
     case RETURN = 'RETURN';
 
@@ -16,6 +17,7 @@ enum OrderType: string
         return match ($this) {
             self::PURCHASE => 'Purchase Order',
             self::SALES => 'Sales Order',
+            self::SALE => 'Sale Order',
             self::TRANSFER => 'Transfer Order',
             self::RETURN => 'Return Order',
         };

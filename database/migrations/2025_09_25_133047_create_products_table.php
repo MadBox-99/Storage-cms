@@ -18,6 +18,10 @@ return new class() extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('sku', 100)->unique();
+            $table->string('cn_code', 8)->nullable();
+            $table->string('country_of_origin', 2)->nullable();
+            $table->decimal('net_weight_kg', 10, 3)->nullable();
+            $table->string('supplementary_unit')->nullable();
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('barcode', 100)->nullable();
@@ -32,13 +36,10 @@ return new class() extends Migration
             $table->decimal('price', 10, 2)->default(0);
             $table->decimal('standard_cost', 15, 4)->nullable();
             $table->string('status', 50)->default('ACTIVE');
+
             $table->timestamps();
             $table->softDeletes();
-
-            $table->index(['status']);
-            $table->index(['category_id']);
-            $table->index(['supplier_id']);
-            $table->index(['sku']);
+            $table->index(['status', 'cn_code', 'category_id', 'supplier_id', 'sku']);
         });
     }
 
