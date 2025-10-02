@@ -35,7 +35,7 @@ final class IntrastatDeclarationResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\IntrastatLinesRelationManager::class,
         ];
     }
 
