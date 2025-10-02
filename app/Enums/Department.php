@@ -4,24 +4,26 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum Department: string
-{
-    case WAREHOUSE = 'WAREHOUSE';
-    case LOGISTICS = 'LOGISTICS';
-    case PROCUREMENT = 'PROCUREMENT';
-    case QUALITY = 'QUALITY';
-    case MANAGEMENT = 'MANAGEMENT';
-    case IT = 'IT';
+use Filament\Support\Contracts\HasLabel;
 
-    public function label(): string
+enum Department: string implements HasLabel
+{
+    case WAREHOUSE = 'warehouse';
+    case LOGISTICS = 'logistics';
+    case PROCUREMENT = 'procurement';
+    case QUALITY = 'quality';
+    case MANAGEMENT = 'management';
+    case IT = 'it';
+
+    public function getLabel(): string
     {
         return match ($this) {
-            self::WAREHOUSE => 'Warehouse Operations',
-            self::LOGISTICS => 'Logistics',
-            self::PROCUREMENT => 'Procurement',
-            self::QUALITY => 'Quality Control',
-            self::MANAGEMENT => 'Management',
-            self::IT => 'Information Technology',
+            self::WAREHOUSE => __('Warehouse Operations'),
+            self::LOGISTICS => __('Logistics'),
+            self::PROCUREMENT => __('Procurement'),
+            self::QUALITY => __('Quality Control'),
+            self::MANAGEMENT => __('Management'),
+            self::IT => __('Information Technology'),
         };
     }
 

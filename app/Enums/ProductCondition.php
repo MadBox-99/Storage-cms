@@ -6,16 +6,18 @@ namespace App\Enums;
 
 enum ProductCondition: string
 {
-    case GOOD = 'GOOD';
-    case MINOR_DAMAGE = 'MINOR_DAMAGE';
-    case DAMAGED = 'DAMAGED';
-    case DEFECTIVE = 'DEFECTIVE';
-    case EXPIRED = 'EXPIRED';
+    case GOOD = 'good';
+    case NEW = 'new';
+    case MINOR_DAMAGE = 'minor_damage';
+    case DAMAGED = 'damaged';
+    case DEFECTIVE = 'defective';
+    case EXPIRED = 'expired';
 
     public function label(): string
     {
         return match ($this) {
             self::GOOD => 'Good',
+            self::NEW => 'New',
             self::MINOR_DAMAGE => 'Minor Damage',
             self::DAMAGED => 'Damaged',
             self::DEFECTIVE => 'Defective',
@@ -27,6 +29,7 @@ enum ProductCondition: string
     {
         return match ($this) {
             self::GOOD => 'success',
+            self::NEW => 'primary',
             self::MINOR_DAMAGE => 'warning',
             self::DAMAGED => 'danger',
             self::DEFECTIVE => 'danger',
@@ -37,7 +40,7 @@ enum ProductCondition: string
     public function canBeRestocked(): bool
     {
         return match ($this) {
-            self::GOOD, self::MINOR_DAMAGE => true,
+            self::GOOD, self::MINOR_DAMAGE => true,self::NEW => true,
             default => false,
         };
     }

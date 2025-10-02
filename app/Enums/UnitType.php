@@ -4,42 +4,45 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum UnitType: string
-{
-    case PIECE = 'PIECE';
-    case KILOGRAM = 'KILOGRAM';
-    case GRAM = 'GRAM';
-    case TON = 'TON';
-    case LITER = 'LITER';
-    case MILLILITER = 'MILLILITER';
-    case METER = 'METER';
-    case CENTIMETER = 'CENTIMETER';
-    case SQUARE_METER = 'SQUARE_METER';
-    case CUBIC_METER = 'CUBIC_METER';
-    case BOX = 'BOX';
-    case PALLET = 'PALLET';
-    case PACK = 'PACK';
-    case BOTTLE = 'BOTTLE';
-    case CAN = 'CAN';
+use Filament\Support\Contracts\HasLabel;
+use Illuminate\Contracts\Support\Htmlable;
 
-    public function label(): string
+enum UnitType: string implements HasLabel
+{
+    case PIECE = 'piece';
+    case KILOGRAM = 'kilogram';
+    case GRAM = 'gram';
+    case TON = 'ton';
+    case LITER = 'liter';
+    case MILLILITER = 'milliliter';
+    case METER = 'meter';
+    case CENTIMETER = 'centimeter';
+    case SQUARE_METER = 'square_meter';
+    case CUBIC_METER = 'cubic_meter';
+    case BOX = 'box';
+    case PALLET = 'pallet';
+    case PACK = 'pack';
+    case BOTTLE = 'bottle';
+    case CAN = 'can';
+
+    public function getLabel(): string|Htmlable|null
     {
         return match ($this) {
-            self::PIECE => 'Piece',
-            self::KILOGRAM => 'Kilogram',
-            self::GRAM => 'Gram',
-            self::TON => 'Ton',
-            self::LITER => 'Liter',
-            self::MILLILITER => 'Milliliter',
-            self::METER => 'Meter',
-            self::CENTIMETER => 'Centimeter',
-            self::SQUARE_METER => 'Square Meter',
-            self::CUBIC_METER => 'Cubic Meter',
-            self::BOX => 'Box',
-            self::PALLET => 'Pallet',
-            self::PACK => 'Pack',
-            self::BOTTLE => 'Bottle',
-            self::CAN => 'Can',
+            self::PIECE => __('Piece'),
+            self::KILOGRAM => __('Kilogram'),
+            self::GRAM => __('Gram'),
+            self::TON => __('Ton'),
+            self::LITER => __('Liter'),
+            self::MILLILITER => __('Milliliter'),
+            self::METER => __('Meter'),
+            self::CENTIMETER => __('Centimeter'),
+            self::SQUARE_METER => __('Square Meter'),
+            self::CUBIC_METER => __('Cubic Meter'),
+            self::BOX => __('Box'),
+            self::PALLET => __('Pallet'),
+            self::PACK => __('Pack'),
+            self::BOTTLE => __('Bottle'),
+            self::CAN => __('Can'),
         };
     }
 

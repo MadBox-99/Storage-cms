@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\OrderLine;
 use App\Models\Product;
 use App\Models\Supplier;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -26,7 +27,7 @@ it('can create an order', function (): void {
 
 it('casts status to enum', function (): void {
     $order = Order::factory()->create([
-        'status' => 'DRAFT',
+        'status' => OrderStatus::DRAFT,
     ]);
 
     expect($order->status)->toBeInstanceOf(OrderStatus::class);
@@ -39,8 +40,8 @@ it('casts dates correctly', function (): void {
         'delivery_date' => '2023-12-15',
     ]);
 
-    expect($order->order_date)->toBeInstanceOf(\Carbon\Carbon::class);
-    expect($order->delivery_date)->toBeInstanceOf(\Carbon\Carbon::class);
+    expect($order->order_date)->toBeInstanceOf(Carbon::class);
+    expect($order->delivery_date)->toBeInstanceOf(Carbon::class);
 });
 
 it('belongs to customer', function (): void {

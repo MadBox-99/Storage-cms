@@ -14,8 +14,8 @@ enum ReturnType: string implements HasLabel
     public function getLabel(): string
     {
         return match ($this) {
-            self::CUSTOMER_RETURN => 'Customer Return',
-            self::SUPPLIER_RETURN => 'Supplier Return',
+            self::CUSTOMER_RETURN => __('Customer Return'),
+            self::SUPPLIER_RETURN => __('Supplier Return'),
         };
     }
 }

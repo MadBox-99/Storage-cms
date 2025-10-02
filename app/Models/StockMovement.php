@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Enums\StockStatus;
+use App\Enums\MovementStatus;
+use App\Enums\MovementType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -56,30 +57,30 @@ final class StockMovement extends Model
     }
 
     // Query scopes
-    public function scopePending($query)
+    public function scopePlanned($query)
     {
-        return $query->where('status', 'PENDING');
+        return $query->where('status', MovementStatus::PLANNED);
     }
 
     public function scopeCompleted($query)
     {
-        return $query->where('status', 'COMPLETED');
+        return $query->where('status', MovementStatus::COMPLETED);
     }
 
     // Helper methods
-    public function isPending(): bool
+    public function isPlanned(): bool
     {
-        return $this->status === 'PENDING';
+        return $this->status === MovementStatus::PLANNED;
     }
 
     public function isCompleted(): bool
     {
-        return $this->status === 'COMPLETED';
+        return $this->status === MovementStatus::COMPLETED;
     }
 
     public function isCancelled(): bool
     {
-        return $this->status === 'CANCELLED';
+        return $this->status === MovementStatus::CANCELLED;
     }
 
     protected function casts(): array
@@ -87,7 +88,8 @@ final class StockMovement extends Model
         return [
             'quantity' => 'integer',
             'executed_at' => 'datetime',
-            'status' => StockStatus::class,
+            'status' => MovementStatus::class,
+            'type' => MovementType::class,
         ];
     }
 }

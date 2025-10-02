@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\MovementStatus;
 use App\Models\Stock;
 use App\Models\StockMovement;
 use Exception;
@@ -30,7 +31,7 @@ final class StockMovementService
 
     public function cancel(StockMovement $movement): void
     {
-        $movement->update(['status' => 'CANCELLED']);
+        $movement->update(['status' => MovementStatus::CANCELLED]);
     }
 
     private function validate(StockMovement $movement): void
@@ -43,11 +44,11 @@ final class StockMovementService
             throw new Exception('Invalid movement: must have source or target warehouse');
         }
 
-        if ($movement->status === 'COMPLETED') {
+        if ($movement->status === MovementStatus::COMPLETED) {
             throw new Exception('Movement already completed');
         }
 
-        if ($movement->status === 'CANCELLED') {
+        if ($movement->status === MovementStatus::CANCELLED) {
             throw new Exception('Cannot execute cancelled movement');
         }
     }
@@ -81,7 +82,7 @@ final class StockMovementService
     private function markAsCompleted(StockMovement $movement): void
     {
         $movement->update([
-            'status' => 'COMPLETED',
+            'status' => MovementStatus::COMPLETED,
             'executed_at' => now(),
         ]);
     }

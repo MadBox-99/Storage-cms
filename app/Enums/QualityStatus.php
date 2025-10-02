@@ -4,26 +4,32 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum QualityStatus: string
-{
-    case PENDING_CHECK = 'PENDING_CHECK';
-    case PASSED = 'PASSED';
-    case FAILED = 'FAILED';
-    case CONDITIONAL = 'CONDITIONAL';
-    case QUARANTINE = 'QUARANTINE';
+use BackedEnum;
+use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasIcon;
+use Filament\Support\Contracts\HasLabel;
+use Filament\Support\Icons\Heroicon;
 
-    public function label(): string
+enum QualityStatus: string implements HasColor, HasIcon, HasLabel
+{
+    case PENDING_CHECK = 'pending_check';
+    case PASSED = 'passed';
+    case FAILED = 'failed';
+    case CONDITIONAL = 'conditional';
+    case QUARANTINE = 'quarantine';
+
+    public function getLabel(): string
     {
         return match ($this) {
-            self::PENDING_CHECK => 'Pending Check',
-            self::PASSED => 'Passed',
-            self::FAILED => 'Failed',
-            self::CONDITIONAL => 'Conditional',
-            self::QUARANTINE => 'Quarantine',
+            self::PENDING_CHECK => __('Pending Check'),
+            self::PASSED => __('Passed'),
+            self::FAILED => __('Failed'),
+            self::CONDITIONAL => __('Conditional'),
+            self::QUARANTINE => __('Quarantine'),
         };
     }
 
-    public function color(): string
+    public function getColor(): string|array|null
     {
         return match ($this) {
             self::PENDING_CHECK => 'gray',
@@ -34,14 +40,14 @@ enum QualityStatus: string
         };
     }
 
-    public function icon(): string
+    public function getIcon(): string|BackedEnum|null
     {
         return match ($this) {
-            self::PENDING_CHECK => 'clock',
-            self::PASSED => 'check-circle',
-            self::FAILED => 'x-circle',
-            self::CONDITIONAL => 'exclamation-triangle',
-            self::QUARANTINE => 'shield-exclamation',
+            self::PENDING_CHECK => Heroicon::Clock,
+            self::PASSED => Heroicon::CheckCircle,
+            self::FAILED => Heroicon::XCircle,
+            self::CONDITIONAL => Heroicon::ExclamationTriangle,
+            self::QUARANTINE => Heroicon::ShieldExclamation,
         };
     }
 

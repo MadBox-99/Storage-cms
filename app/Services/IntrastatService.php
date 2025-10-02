@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Enums\IntrastatDeliveryTerms;
 use App\Enums\IntrastatDirection;
+use App\Enums\IntrastatStatus;
 use App\Enums\IntrastatTransactionType;
 use App\Enums\IntrastatTransportMode;
 use App\Enums\OrderStatus;
@@ -32,7 +33,7 @@ final class IntrastatService
                 'reference_year' => $year,
                 'reference_month' => $month,
                 'declaration_date' => now(),
-                'status' => 'DRAFT',
+                'status' => IntrastatStatus::DRAFT,
             ]);
 
             // Get relevant orders for the period

@@ -4,44 +4,52 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum SupplierRating: string
+use BackedEnum;
+use Filament\Support\Colors\Color;
+use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasIcon;
+use Filament\Support\Contracts\HasLabel;
+use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\Support\Htmlable;
+
+enum SupplierRating: string implements HasColor, HasIcon, HasLabel
 {
-    case EXCELLENT = 'EXCELLENT';
-    case GOOD = 'GOOD';
-    case AVERAGE = 'AVERAGE';
-    case POOR = 'POOR';
-    case BLACKLISTED = 'BLACKLISTED';
+    case EXCELLENT = 'excellent';
+    case GOOD = 'good';
+    case AVERAGE = 'average';
+    case POOR = 'poor';
+    case BLACKLISTED = 'blacklisted';
 
-    public function label(): string
+    public function getLabel(): string|Htmlable|null
     {
         return match ($this) {
-            self::EXCELLENT => 'Excellent',
-            self::GOOD => 'Good',
-            self::AVERAGE => 'Average',
-            self::POOR => 'Poor',
-            self::BLACKLISTED => 'Blacklisted',
+            self::EXCELLENT => __('Excellent'),
+            self::GOOD => __('Good'),
+            self::AVERAGE => __('Average'),
+            self::POOR => __('Poor'),
+            self::BLACKLISTED => __('Blacklisted'),
         };
     }
 
-    public function color(): string
+    public function getColor(): string|array|null
     {
         return match ($this) {
-            self::EXCELLENT => 'green',
-            self::GOOD => 'blue',
-            self::AVERAGE => 'yellow',
-            self::POOR => 'orange',
-            self::BLACKLISTED => 'red',
+            self::EXCELLENT => Color::Green,
+            self::GOOD => Color::Blue,
+            self::AVERAGE => Color::Yellow,
+            self::POOR => Color::Orange,
+            self::BLACKLISTED => Color::Red,
         };
     }
 
-    public function icon(): string
+    public function getIcon(): string|BackedEnum|null
     {
         return match ($this) {
-            self::EXCELLENT => 'star',
-            self::GOOD => 'hand-thumb-up',
-            self::AVERAGE => 'minus',
-            self::POOR => 'hand-thumb-down',
-            self::BLACKLISTED => 'x-mark',
+            self::EXCELLENT => Heroicon::Star,
+            self::GOOD => Heroicon::HandThumbUp,
+            self::AVERAGE => Heroicon::Minus,
+            self::POOR => Heroicon::HandThumbDown,
+            self::BLACKLISTED => Heroicon::XMark,
         };
     }
 
@@ -63,7 +71,7 @@ enum SupplierRating: string
 
     public function isAcceptable(): bool
     {
-        return !$this->isBlacklisted();
+        return ! $this->isBlacklisted();
     }
 
     public function canDoBusinessWith(): bool

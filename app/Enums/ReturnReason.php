@@ -4,30 +4,32 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum ReturnReason: string
-{
-    case DEFECTIVE = 'DEFECTIVE';
-    case DAMAGED = 'DAMAGED';
-    case WRONG_ITEM = 'WRONG_ITEM';
-    case NOT_AS_DESCRIBED = 'NOT_AS_DESCRIBED';
-    case QUALITY_ISSUE = 'QUALITY_ISSUE';
-    case EXPIRED = 'EXPIRED';
-    case OVERSTOCKED = 'OVERSTOCKED';
-    case CUSTOMER_CHANGE_OF_MIND = 'CUSTOMER_CHANGE_OF_MIND';
-    case OTHER = 'OTHER';
+use Filament\Support\Contracts\HasLabel;
 
-    public function label(): string
+enum ReturnReason: string implements HasLabel
+{
+    case DEFECTIVE = 'defective';
+    case DAMAGED = 'damaged';
+    case WRONG_ITEM = 'wrong_item';
+    case NOT_AS_DESCRIBED = 'not_as_described';
+    case QUALITY_ISSUE = 'quality_issue';
+    case EXPIRED = 'expired';
+    case OVERSTOCKED = 'overstocked';
+    case CUSTOMER_CHANGE_OF_MIND = 'customer_change_of_mind';
+    case OTHER = 'other';
+
+    public function getLabel(): string
     {
         return match ($this) {
-            self::DEFECTIVE => 'Defective',
-            self::DAMAGED => 'Damaged',
-            self::WRONG_ITEM => 'Wrong Item',
-            self::NOT_AS_DESCRIBED => 'Not as Described',
-            self::QUALITY_ISSUE => 'Quality Issue',
-            self::EXPIRED => 'Expired',
-            self::OVERSTOCKED => 'Overstocked',
-            self::CUSTOMER_CHANGE_OF_MIND => 'Customer Change of Mind',
-            self::OTHER => 'Other',
+            self::DEFECTIVE => __('Defective'),
+            self::DAMAGED => __('Damaged'),
+            self::WRONG_ITEM => __('Wrong Item'),
+            self::NOT_AS_DESCRIBED => __('Not as Described'),
+            self::QUALITY_ISSUE => __('Quality Issue'),
+            self::EXPIRED => __('Expired'),
+            self::OVERSTOCKED => __('Overstocked'),
+            self::CUSTOMER_CHANGE_OF_MIND => __('Customer Change of Mind'),
+            self::OTHER => __('Other'),
         };
     }
 

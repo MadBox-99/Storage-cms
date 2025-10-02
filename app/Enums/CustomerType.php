@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum CustomerType: string
+use Filament\Support\Contracts\HasLabel;
+
+enum CustomerType: string implements HasLabel
 {
     case RETAIL = 'RETAIL';
     case WHOLESALE = 'WHOLESALE';
@@ -12,7 +14,7 @@ enum CustomerType: string
     case INTERNAL = 'INTERNAL';
     case VIP = 'VIP';
 
-    public function label(): string
+    public function getLabel(): string
     {
         return match ($this) {
             self::RETAIL => 'Retail Customer',

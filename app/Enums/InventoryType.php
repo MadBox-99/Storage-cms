@@ -4,27 +4,33 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum InventoryType: string
-{
-    case FULL = 'FULL';
-    case CYCLE = 'CYCLE';
-    case SPOT = 'SPOT';
+use Filament\Support\Contracts\HasDescription;
+use Filament\Support\Contracts\HasLabel;
 
-    public function label(): string
+enum InventoryType: string implements HasDescription, HasLabel
+{
+    case FULL = 'full';
+    case CYCLE = 'cycle';
+    case SPOT = 'spot';
+    case ANNUAL = 'annual';
+
+    public function getLabel(): string
     {
         return match ($this) {
-            self::FULL => 'Full Inventory',
-            self::CYCLE => 'Cycle Count',
-            self::SPOT => 'Spot Check',
+            self::FULL => __('Full Inventory'),
+            self::CYCLE => __('Cycle Count'),
+            self::SPOT => __('Spot Check'),
+            self::ANNUAL => __('Annual Inventory'),
         };
     }
 
-    public function description(): string
+    public function getDescription(): string
     {
         return match ($this) {
-            self::FULL => 'Complete inventory count of all items',
-            self::CYCLE => 'Periodic count of specific items or categories',
-            self::SPOT => 'Random or targeted count of select items',
+            self::FULL => __('Complete inventory count of all items'),
+            self::CYCLE => __('Periodic count of specific items or categories'),
+            self::SPOT => __('Random or targeted count of select items'),
+            self::ANNUAL => __('Yearly comprehensive inventory count'),
         };
     }
 }

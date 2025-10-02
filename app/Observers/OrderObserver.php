@@ -6,6 +6,7 @@ namespace App\Observers;
 
 use App\Enums\IntrastatDeliveryTerms;
 use App\Enums\IntrastatDirection;
+use App\Enums\IntrastatStatus;
 use App\Enums\IntrastatTransactionType;
 use App\Enums\IntrastatTransportMode;
 use App\Enums\OrderStatus;
@@ -134,7 +135,7 @@ final class OrderObserver
             [
                 'declaration_number' => sprintf('%s-%s-%s', $direction->value, $year, $month),
                 'declaration_date' => now(),
-                'status' => 'DRAFT',
+                'status' => IntrastatStatus::DRAFT,
             ]
         );
     }

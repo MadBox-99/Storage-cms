@@ -4,28 +4,36 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum StockStatus: string
-{
-    case AVAILABLE = 'AVAILABLE';
-    case RESERVED = 'RESERVED';
-    case DAMAGED = 'DAMAGED';
-    case QUARANTINE = 'QUARANTINE';
-    case IN_TRANSIT = 'IN_TRANSIT';
-    case EXPIRED = 'EXPIRED';
+use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasLabel;
+use Illuminate\Contracts\Support\Htmlable;
 
-    public function label(): string
+enum StockStatus: string implements HasColor, HasLabel
+{
+    case AVAILABLE = 'available';
+    case RESERVED = 'reserved';
+    case DAMAGED = 'damaged';
+    case QUARANTINE = 'quarantine';
+    case IN_TRANSIT = 'in_transit';
+    case EXPIRED = 'expired';
+    case COMPLETED = 'completed';
+    case CANCELLED = 'cancelled';
+
+    public function getLabel(): string|Htmlable|null
     {
         return match ($this) {
-            self::AVAILABLE => 'Available',
-            self::RESERVED => 'Reserved',
-            self::DAMAGED => 'Damaged',
-            self::QUARANTINE => 'Quarantine',
-            self::IN_TRANSIT => 'In Transit',
-            self::EXPIRED => 'Expired',
+            self::AVAILABLE => __('Available'),
+            self::RESERVED => __('Reserved'),
+            self::DAMAGED => __('Damaged'),
+            self::QUARANTINE => __('Quarantine'),
+            self::IN_TRANSIT => __('In Transit'),
+            self::EXPIRED => __('Expired'),
+            self::COMPLETED => __('Completed'),
+            self::CANCELLED => __('Cancelled'),
         };
     }
 
-    public function color(): string
+    public function getColor(): string
     {
         return match ($this) {
             self::AVAILABLE => 'green',

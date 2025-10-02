@@ -8,11 +8,11 @@ use Filament\Support\Contracts\HasLabel;
 
 enum PaymentMethod: string implements HasLabel
 {
-    case CASH = 'CASH';
-    case BANK_TRANSFER = 'BANK_TRANSFER';
-    case CREDIT_CARD = 'CREDIT_CARD';
-    case CHECK = 'CHECK';
-    case OTHER = 'OTHER';
+    case CASH = 'cash';
+    case BANK_TRANSFER = 'bank_transfer';
+    case CREDIT_CARD = 'credit_card';
+    case CHECK = 'check';
+    case OTHER = 'other';
 
     public function getLabel(): string
     {

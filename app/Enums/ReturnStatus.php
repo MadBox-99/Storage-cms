@@ -4,34 +4,37 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum ReturnStatus: string
-{
-    case DRAFT = 'DRAFT';
-    case PENDING_INSPECTION = 'PENDING_INSPECTION';
-    case INSPECTED = 'INSPECTED';
-    case APPROVED = 'APPROVED';
-    case REJECTED = 'REJECTED';
-    case PROCESSED = 'PROCESSED';
-    case RESTOCKED = 'RESTOCKED';
-    case REFUNDED = 'REFUNDED';
-    case CANCELLED = 'CANCELLED';
+use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasLabel;
 
-    public function label(): string
+enum ReturnStatus: string implements HasColor, HasLabel
+{
+    case DRAFT = 'draft';
+    case PENDING_INSPECTION = 'pending_inspection';
+    case INSPECTED = 'inspected';
+    case APPROVED = 'approved';
+    case REJECTED = 'rejected';
+    case PROCESSED = 'processed';
+    case RESTOCKED = 'restocked';
+    case REFUNDED = 'refunded';
+    case CANCELLED = 'cancelled';
+
+    public function getLabel(): string
     {
         return match ($this) {
-            self::DRAFT => 'Draft',
-            self::PENDING_INSPECTION => 'Pending Inspection',
-            self::INSPECTED => 'Inspected',
-            self::APPROVED => 'Approved',
-            self::REJECTED => 'Rejected',
-            self::PROCESSED => 'Processed',
-            self::RESTOCKED => 'Restocked',
-            self::REFUNDED => 'Refunded',
-            self::CANCELLED => 'Cancelled',
+            self::DRAFT => __('Draft'),
+            self::PENDING_INSPECTION => __('Pending Inspection'),
+            self::INSPECTED => __('Inspected'),
+            self::APPROVED => __('Approved'),
+            self::REJECTED => __('Rejected'),
+            self::PROCESSED => __('Processed'),
+            self::RESTOCKED => __('Restocked'),
+            self::REFUNDED => __('Refunded'),
+            self::CANCELLED => __('Cancelled'),
         };
     }
 
-    public function color(): string
+    public function getColor(): string
     {
         return match ($this) {
             self::DRAFT => 'gray',

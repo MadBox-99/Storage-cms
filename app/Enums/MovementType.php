@@ -6,11 +6,11 @@ namespace App\Enums;
 
 enum MovementType: string
 {
-    case INBOUND = 'INBOUND';
-    case OUTBOUND = 'OUTBOUND';
-    case TRANSFER = 'TRANSFER';
-    case ADJUSTMENT = 'ADJUSTMENT';
-    case RETURN = 'RETURN';
+    case INBOUND = 'inbound';
+    case OUTBOUND = 'outbound';
+    case TRANSFER = 'transfer';
+    case ADJUSTMENT = 'adjustment';
+    case RETURN = 'return';
 
     public function label(): string
     {

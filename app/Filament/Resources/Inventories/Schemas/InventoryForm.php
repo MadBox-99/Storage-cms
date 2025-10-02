@@ -29,10 +29,12 @@ final class InventoryForm
                     ->required(),
                 Select::make('status')
                     ->options(InventoryStatus::class)
-                    ->default('IN_PROGRESS')
+                    ->enum(InventoryStatus::class)
+                    ->default(InventoryStatus::IN_PROGRESS)
                     ->required(),
                 Select::make('type')
                     ->options(InventoryType::class)
+                    ->enum(InventoryType::class)
                     ->required(),
                 TextInput::make('variance_value')
                     ->required()

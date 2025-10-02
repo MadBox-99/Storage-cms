@@ -9,8 +9,8 @@ use Filament\Support\Contracts\HasLabel;
 
 enum IntrastatDirection: string implements HasColor, HasLabel
 {
-    case ARRIVAL = 'ARRIVAL';     // Érkezés (beszerzés más EU tagállamból)
-    case DISPATCH = 'DISPATCH';   // Feladás (értékesítés más EU tagállamba)
+    case ARRIVAL = 'arrival';     // Érkezés (beszerzés más EU tagállamból)
+    case DISPATCH = 'dispatch';   // Feladás (értékesítés más EU tagállamba)
 
     public function getLabel(): string
     {

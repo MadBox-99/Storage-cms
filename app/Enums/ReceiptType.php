@@ -4,26 +4,32 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum ReceiptType: string
-{
-    case PURCHASE_ORDER = 'PURCHASE_ORDER';
-    case RETURN = 'RETURN';
-    case TRANSFER = 'TRANSFER';
-    case ADJUSTMENT = 'ADJUSTMENT';
-    case PRODUCTION = 'PRODUCTION';
+use BackedEnum;
+use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasIcon;
+use Filament\Support\Contracts\HasLabel;
+use Filament\Support\Icons\Heroicon;
 
-    public function label(): string
+enum ReceiptType: string implements HasColor, HasIcon, HasLabel
+{
+    case PURCHASE_ORDER = 'purchase_order';
+    case RETURN = 'return';
+    case TRANSFER = 'transfer';
+    case ADJUSTMENT = 'adjustment';
+    case PRODUCTION = 'production';
+
+    public function getLabel(): string
     {
         return match ($this) {
-            self::PURCHASE_ORDER => 'Purchase Order',
-            self::RETURN => 'Return',
-            self::TRANSFER => 'Transfer',
-            self::ADJUSTMENT => 'Adjustment',
-            self::PRODUCTION => 'Production',
+            self::PURCHASE_ORDER => __('Purchase Order'),
+            self::RETURN => __('Return'),
+            self::TRANSFER => __('Transfer'),
+            self::ADJUSTMENT => __('Adjustment'),
+            self::PRODUCTION => __('Production'),
         };
     }
 
-    public function color(): string
+    public function getColor(): string
     {
         return match ($this) {
             self::PURCHASE_ORDER => 'blue',
@@ -34,14 +40,14 @@ enum ReceiptType: string
         };
     }
 
-    public function icon(): string
+    public function getIcon(): string|BackedEnum|null
     {
         return match ($this) {
-            self::PURCHASE_ORDER => 'shopping-cart',
-            self::RETURN => 'arrow-uturn-left',
-            self::TRANSFER => 'arrow-right-arrow-left',
-            self::ADJUSTMENT => 'adjustments-horizontal',
-            self::PRODUCTION => 'wrench-screwdriver',
+            self::PURCHASE_ORDER => Heroicon::ShoppingCart,
+            self::RETURN => Heroicon::ArrowUturnLeft,
+            self::TRANSFER => Heroicon::ArrowRight,
+            self::ADJUSTMENT => Heroicon::AdjustmentsHorizontal,
+            self::PRODUCTION => Heroicon::WrenchScrewdriver,
         };
     }
 

@@ -4,26 +4,29 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum ReceiptStatus: string
-{
-    case PENDING = 'PENDING';
-    case IN_PROGRESS = 'IN_PROGRESS';
-    case COMPLETED = 'COMPLETED';
-    case REJECTED = 'REJECTED';
-    case CONFIRMED = 'CONFIRMED';
+use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasLabel;
 
-    public function label(): string
+enum ReceiptStatus: string implements HasColor, HasLabel
+{
+    case PENDING = 'pending';
+    case IN_PROGRESS = 'in_progress';
+    case COMPLETED = 'completed';
+    case REJECTED = 'rejected';
+    case CONFIRMED = 'confirmed';
+
+    public function getLabel(): string
     {
         return match ($this) {
-            self::PENDING => 'Pending',
-            self::IN_PROGRESS => 'In Progress',
-            self::COMPLETED => 'Completed',
-            self::REJECTED => 'Rejected',
-            self::CONFIRMED => 'Confirmed',
+            self::PENDING => __('Pending'),
+            self::IN_PROGRESS => __('In Progress'),
+            self::COMPLETED => __('Completed'),
+            self::REJECTED => __('Rejected'),
+            self::CONFIRMED => __('Confirmed'),
         };
     }
 
-    public function color(): string
+    public function getColor(): string
     {
         return match ($this) {
             self::PENDING => 'gray',

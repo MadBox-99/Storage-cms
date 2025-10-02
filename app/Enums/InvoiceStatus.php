@@ -9,13 +9,13 @@ use Filament\Support\Contracts\HasLabel;
 
 enum InvoiceStatus: string implements HasColor, HasLabel
 {
-    case DRAFT = 'DRAFT';
-    case ISSUED = 'ISSUED';
-    case SENT = 'SENT';
-    case PARTIALLY_PAID = 'PARTIALLY_PAID';
-    case PAID = 'PAID';
-    case OVERDUE = 'OVERDUE';
-    case CANCELLED = 'CANCELLED';
+    case DRAFT = 'draft';
+    case ISSUED = 'issued';
+    case SENT = 'sent';
+    case PARTIALLY_PAID = 'partially_paid';
+    case PAID = 'paid';
+    case OVERDUE = 'overdue';
+    case CANCELLED = 'cancelled';
 
     public function getLabel(): string
     {

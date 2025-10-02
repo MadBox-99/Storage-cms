@@ -4,26 +4,29 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum InventoryStatus: string
-{
-    case DRAFT = 'DRAFT';
-    case IN_PROGRESS = 'IN_PROGRESS';
-    case COMPLETED = 'COMPLETED';
-    case APPROVED = 'APPROVED';
-    case CANCELLED = 'CANCELLED';
+use Filament\Support\Concerns\HasColor;
+use Filament\Support\Contracts\HasLabel;
 
-    public function label(): string
+enum InventoryStatus: string implements HasColor, HasLabel
+{
+    case DRAFT = 'draft';
+    case IN_PROGRESS = 'in_progress';
+    case COMPLETED = 'completed';
+    case APPROVED = 'approved';
+    case CANCELLED = 'cancelled';
+
+    public function getLabel(): string
     {
         return match ($this) {
-            self::DRAFT => 'Draft',
-            self::IN_PROGRESS => 'In Progress',
-            self::COMPLETED => 'Completed',
-            self::APPROVED => 'Approved',
-            self::CANCELLED => 'Cancelled',
+            self::DRAFT => __('Draft'),
+            self::IN_PROGRESS => __('In Progress'),
+            self::COMPLETED => __('Completed'),
+            self::APPROVED => __('Approved'),
+            self::CANCELLED => __('Cancelled'),
         };
     }
 
-    public function color(): string
+    public function getColor(): string
     {
         return match ($this) {
             self::DRAFT => 'gray',

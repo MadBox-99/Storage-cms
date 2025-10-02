@@ -9,12 +9,12 @@ use Filament\Support\Contracts\HasLabel;
 
 enum PaymentStatus: string implements HasColor, HasLabel
 {
-    case PENDING = 'PENDING';
-    case PROCESSING = 'PROCESSING';
-    case COMPLETED = 'COMPLETED';
-    case FAILED = 'FAILED';
-    case REFUNDED = 'REFUNDED';
-    case CANCELLED = 'CANCELLED';
+    case PENDING = 'pending';
+    case PROCESSING = 'processing';
+    case COMPLETED = 'completed';
+    case FAILED = 'failed';
+    case REFUNDED = 'refunded';
+    case CANCELLED = 'cancelled';
 
     public function getLabel(): string
     {

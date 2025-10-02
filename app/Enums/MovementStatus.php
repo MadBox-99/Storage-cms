@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum MovementStatus: string
-{
-    case PLANNED = 'PLANNED';
-    case IN_PROGRESS = 'IN_PROGRESS';
-    case COMPLETED = 'COMPLETED';
-    case CANCELLED = 'CANCELLED';
+use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasLabel;
 
-    public function label(): string
+enum MovementStatus: string implements HasColor, HasLabel
+{
+    case PLANNED = 'planned';
+    case IN_PROGRESS = 'in_progress';
+    case COMPLETED = 'completed';
+    case CANCELLED = 'cancelled';
+
+    public function getLabel(): string
     {
         return match ($this) {
             self::PLANNED => 'Planned',
@@ -21,7 +24,7 @@ enum MovementStatus: string
         };
     }
 
-    public function color(): string
+    public function getColor(): string
     {
         return match ($this) {
             self::PLANNED => 'gray',

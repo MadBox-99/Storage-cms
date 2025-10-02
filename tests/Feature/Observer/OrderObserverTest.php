@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Enums\IntrastatDirection;
+use App\Enums\IntrastatStatus;
 use App\Enums\OrderStatus;
 use App\Models\IntrastatDeclaration;
 use App\Models\IntrastatLine;
@@ -51,7 +52,7 @@ it('creates intrastat lines when purchase order is delivered with EU supplier', 
 
     $declaration = IntrastatDeclaration::first();
     expect($declaration->direction)->toBe(IntrastatDirection::ARRIVAL);
-    expect($declaration->status)->toBe('DRAFT');
+    expect($declaration->status)->toBe(IntrastatStatus::DRAFT);
 
     // Assert Intrastat line was created
     assertDatabaseHas('intrastat_lines', [
@@ -175,7 +176,7 @@ it('creates declaration with correct month and year', function () {
     $declaration = IntrastatDeclaration::first();
     expect($declaration->reference_year)->toBe(2025);
     expect($declaration->reference_month)->toBe(3);
-    expect($declaration->declaration_number)->toBe('ARRIVAL-2025-03');
+    expect($declaration->declaration_number)->toBe('arrival-2025-03');
 });
 
 it('reuses existing declaration for same month and direction', function () {

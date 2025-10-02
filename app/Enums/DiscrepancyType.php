@@ -4,22 +4,25 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum DiscrepancyType: string
-{
-    case SHORTAGE = 'SHORTAGE';
-    case OVERAGE = 'OVERAGE';
-    case MATCH = 'MATCH';
+use Filament\Support\Concerns\HasColor;
+use Filament\Support\Contracts\HasLabel;
 
-    public function label(): string
+enum DiscrepancyType: string implements HasColor, HasLabel
+{
+    case SHORTAGE = 'shortage';
+    case OVERAGE = 'overage';
+    case MATCH = 'match';
+
+    public function getLabel(): string
     {
         return match ($this) {
-            self::SHORTAGE => 'Shortage',
-            self::OVERAGE => 'Overage',
-            self::MATCH => 'Match',
+            self::SHORTAGE => __('Shortage'),
+            self::OVERAGE => __('Overage'),
+            self::MATCH => __('Match'),
         };
     }
 
-    public function color(): string
+    public function getColor(): string
     {
         return match ($this) {
             self::SHORTAGE => 'danger',

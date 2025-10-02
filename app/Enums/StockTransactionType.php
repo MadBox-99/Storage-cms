@@ -15,8 +15,8 @@ enum StockTransactionType: string implements HasLabel
     public function getLabel(): string|Htmlable|null
     {
         return match ($this) {
-            self::INBOUND => 'Inbound',
-            self::OUTBOUND => 'Outbound',
+            self::INBOUND => __('Inbound'),
+            self::OUTBOUND => __('Outbound'),
         };
     }
 }

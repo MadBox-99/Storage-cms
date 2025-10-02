@@ -19,10 +19,10 @@ enum ProductStatus: string implements HasColor, HasLabel
     public function getLabel(): string|Htmlable|null
     {
         return match ($this) {
-            self::ACTIVE => 'Active',
-            self::INACTIVE => 'Inactive',
-            self::DISCONTINUED => 'Discontinued',
-            self::OUT_OF_STOCK => 'Out of Stock',
+            self::ACTIVE => __('Active'),
+            self::INACTIVE => __('Inactive'),
+            self::DISCONTINUED => __('Discontinued'),
+            self::OUT_OF_STOCK => __('Out of Stock'),
         };
     }
 
