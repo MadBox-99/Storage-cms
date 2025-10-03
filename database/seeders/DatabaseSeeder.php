@@ -41,23 +41,14 @@ final class DatabaseSeeder extends Seeder
             ->for($manager, 'manager')
             ->has(Employee::factory()->count(3))
             ->create();
-
-        $stocks = Stock::factory()
+        $warehouses->each(fn (Warehouse $warehouse) => Stock::factory()
             ->count(10)
-            ->for($warehouses->get(0), 'warehouse')
+            ->for($warehouse, 'warehouse')
             ->state(new Sequence(
                 fn (Sequence $sequence): array => [
                     'product_id' => $products->get($sequence->index)->id,
                 ]
-            ))->create();
-        $stocks = Stock::factory()
-            ->count(10)
-            ->for($warehouses->get(1), 'warehouse')
-            ->state(new Sequence(
-                fn (Sequence $sequence): array => [
-                    'product_id' => $products->get($sequence->index)->id,
-                ]
-            ))->create();
+            ))->create());
 
         Customer::factory()->count(10)->create();
 
