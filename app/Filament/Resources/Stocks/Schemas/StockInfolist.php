@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Stocks\Schemas;
 
 use App\Models\Stock;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 
-class StockInfolist
+final class StockInfolist
 {
     public static function configure(Schema $schema): Schema
     {
@@ -27,7 +29,12 @@ class StockInfolist
                 TextEntry::make('batch.id')
                     ->label('Batch')
                     ->placeholder('-'),
-                TextEntry::make('status'),
+                TextEntry::make('status')
+                    ->badge(),
+                TextEntry::make('unit_cost')
+                    ->numeric(),
+                TextEntry::make('total_value')
+                    ->numeric(),
                 TextEntry::make('created_at')
                     ->dateTime()
                     ->placeholder('-'),

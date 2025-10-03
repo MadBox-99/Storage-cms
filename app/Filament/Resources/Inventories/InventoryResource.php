@@ -8,6 +8,7 @@ use App\Enums\NavigationGroup;
 use App\Filament\Resources\Inventories\Pages\CreateInventory;
 use App\Filament\Resources\Inventories\Pages\EditInventory;
 use App\Filament\Resources\Inventories\Pages\ListInventories;
+use App\Filament\Resources\Inventories\RelationManagers\InventoryLinesRelationManager;
 use App\Filament\Resources\Inventories\Schemas\InventoryForm;
 use App\Filament\Resources\Inventories\Tables\InventoriesTable;
 use App\Models\Inventory;
@@ -37,7 +38,7 @@ final class InventoryResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            InventoryLinesRelationManager::class,
         ];
     }
 

@@ -9,7 +9,7 @@ use App\Models\Customer;
 use App\Models\Employee;
 use App\Models\Product;
 use App\Models\ReturnDelivery;
-use App\Models\ReturnLine;
+use App\Models\ReturnDeliveryLine;
 use App\Models\Stock;
 use App\Models\Supplier;
 use App\Models\Warehouse;
@@ -62,14 +62,14 @@ test('can add return lines to delivery', function (): void {
 
     $product = Product::factory()->create();
 
-    $line = ReturnLine::factory()->create([
+    $line = ReturnDeliveryLine::factory()->create([
         'return_delivery_id' => $return->id,
         'product_id' => $product->id,
         'quantity' => 5,
         'unit_price' => 1000,
     ]);
 
-    expect($return->returnLines)
+    expect($return->returnDeliveryLines)
         ->toHaveCount(1)
         ->first()->product_id->toBe($product->id);
 });
@@ -81,13 +81,13 @@ test('calculates total amount correctly', function (): void {
         'total_amount' => 0,
     ]);
 
-    ReturnLine::factory()->create([
+    ReturnDeliveryLine::factory()->create([
         'return_delivery_id' => $return->id,
         'quantity' => 5,
         'unit_price' => 1000,
     ]);
 
-    ReturnLine::factory()->create([
+    ReturnDeliveryLine::factory()->create([
         'return_delivery_id' => $return->id,
         'quantity' => 3,
         'unit_price' => 500,
@@ -134,7 +134,7 @@ test('can restock items from approved return', function (): void {
         'processed_by' => $this->employee->id,
     ]);
 
-    ReturnLine::factory()->goodCondition()->create([
+    ReturnDeliveryLine::factory()->goodCondition()->create([
         'return_delivery_id' => $return->id,
         'product_id' => $product->id,
         'quantity' => 5,
@@ -162,7 +162,7 @@ test('does not restock damaged items', function (): void {
         'processed_by' => $this->employee->id,
     ]);
 
-    ReturnLine::factory()->damaged()->create([
+    ReturnDeliveryLine::factory()->damaged()->create([
         'return_delivery_id' => $return->id,
         'product_id' => $product->id,
         'quantity' => 5,
@@ -178,11 +178,11 @@ test('does not restock damaged items', function (): void {
 });
 
 test('return line can determine if restockable', function (): void {
-    $goodLine = ReturnLine::factory()->goodCondition()->make([
+    $goodLine = ReturnDeliveryLine::factory()->goodCondition()->make([
         'condition' => ProductCondition::GOOD,
     ]);
 
-    $damagedLine = ReturnLine::factory()->damaged()->make([
+    $damagedLine = ReturnDeliveryLine::factory()->damaged()->make([
         'condition' => ProductCondition::DAMAGED,
     ]);
 
@@ -191,11 +191,11 @@ test('return line can determine if restockable', function (): void {
 });
 
 test('return line can determine if requires disposal', function (): void {
-    $goodLine = ReturnLine::factory()->goodCondition()->make([
+    $goodLine = ReturnDeliveryLine::factory()->goodCondition()->make([
         'condition' => ProductCondition::GOOD,
     ]);
 
-    $damagedLine = ReturnLine::factory()->damaged()->make([
+    $damagedLine = ReturnDeliveryLine::factory()->damaged()->make([
         'condition' => ProductCondition::DAMAGED,
     ]);
 

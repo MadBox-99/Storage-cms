@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Suppliers\Schemas;
 
+use App\Enums\SupplierRating;
 use App\Models\Supplier;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -111,12 +112,12 @@ final class SupplierInfolist
                         TextEntry::make('rating')
                             ->placeholder('-')
                             ->badge()
-                            ->color(fn (string $state): string => match ($state) {
-                                'EXCELLENT' => 'success',
-                                'GOOD' => 'info',
-                                'AVERAGE' => 'warning',
-                                'POOR' => 'danger',
-                                'BLACKLISTED' => 'danger',
+                            ->color(fn (SupplierRating $state): string => match ($state) {
+                                SupplierRating::EXCELLENT => 'success',
+                                SupplierRating::GOOD => 'info',
+                                SupplierRating::AVERAGE => 'warning',
+                                SupplierRating::POOR => 'danger',
+                                SupplierRating::BLACKLISTED => 'danger',
                                 default => 'gray',
                             }),
                         IconEntry::make('is_active')

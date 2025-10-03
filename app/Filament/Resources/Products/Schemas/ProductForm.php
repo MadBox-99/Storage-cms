@@ -70,9 +70,7 @@ final class ProductForm
                     ->schema([
                         Select::make('unit_of_measure')
                             ->label('Unit of Measure / Mértékegység')
-                            ->options(collect(UnitType::cases())->mapWithKeys(
-                                fn (UnitType $unit) => [$unit->value => $unit->label().' ('.$unit->abbreviation().')']
-                            ))
+                            ->options(UnitType::class)
                             ->default(UnitType::PIECE)
                             ->required(),
                         TextInput::make('weight')

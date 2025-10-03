@@ -20,6 +20,7 @@ final class IntrastatLine extends Model
         'order_id',
         'product_id',
         'supplier_id',
+        'cn_code_id',
         'cn_code',
         'quantity',
         'net_mass',
@@ -54,6 +55,11 @@ final class IntrastatLine extends Model
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
+    }
+
+    public function cnCode(): BelongsTo
+    {
+        return $this->belongsTo(CnCode::class);
     }
 
     protected function casts(): array

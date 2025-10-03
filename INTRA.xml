@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<INTRASTAT_bevallas>
+    <Head>
+        <CopyRight>Nagy Machinátor v3.1.209.93417 2025.09.16. Sorszám: 15177 - Copyright (C) PROGEN
+            Kft.</CopyRight>
+        <Title>IntraStat kiszállítás lista (25.09.01-25.09.30)</Title>
+        <Volume>Két Kör Kft</Volume>
+        <Date>25.10.02</Date>
+        <Time>14:40</Time>
+        <Adat>Sor.</Adat>
+        <Adat>Termék</Adat>
+        <Adat>Ügylet</Adat>
+        <Adat>Száll.felt.</Adat>
+        <Adat>Fuvar.mód</Adat>
+        <Adat>Cél tagáll</Adat>
+        <Adat>Szárm.o.</Adat>
+        <Adat>Adószám</Adat>
+        <Adat>Termék név</Adat>
+        <Adat>Bizonylatszám</Adat>
+        <Adat>Cikkszám</Adat>
+        <Adat>Megnevezés</Adat>
+        <Adat>Devizaár</Adat>
+        <Adat>Árfolyam</Adat>
+        <Adat>Tömeg</Adat>
+        <Adat>Mennyiség</Adat>
+        <Adat>Számla összeg</Adat>
+        <Adat>Stat.összeg</Adat>
+        <Adat> </Adat>
+        <CopyRight>Nagy Machinátor v3.1.209.93417 2025.09.16. Sorszám: 15177 - Copyright (C) PROGEN
+            Kft.</CopyRight>
+        <Title>IntraStat kiszállítás lista (25.09.01-25.09.30)</Title>
+        <Volume>Két Kör Kft</Volume>
+        <Date>25.10.02</Date>
+        <Time>14:40</Time>
+        <Adat>Összesítés</Adat>
+        <Adat>Sor.</Adat>
+        <Adat>Termék</Adat>
+        <Adat>Ügylet</Adat>
+        <Adat>Száll.felt.</Adat>
+        <Adat>Fuvar.mód</Adat>
+        <Adat>Cél tagáll</Adat>
+        <Adat>Szárm.o.</Adat>
+        <Adat>Adószám</Adat>
+        <Adat>Tömeg</Adat>
+        <Adat>Mennyiség</Adat>
+        <Adat>Számla összeg</Adat>
+        <Adat>Stat.összeg</Adat>
+        <Adat> </Adat>
+    </Head>
+    <Items>
+        <Item>
+            <T218201990_0000>1</T218201990_0000>
+            <T218201990_0001>85011091</T218201990_0001>
+            <T218201990_0002>11</T218201990_0002>
+            <T218201990_0005>DE</T218201990_0005>
+            <T218201990_0006>IT</T218201990_0006>
+            <T218201990_0007>DE162855631 </T218201990_0007>
+            <T218201990_0008>Univerzális egyenáramú/váltóáramú motor,</T218201990_0008>
+        </Item>
+        <Item>
+            <Bizonylatszam>20-25/00273</Bizonylatszam>
+            <Cikkszam>2-2220-010-0</Cikkszam>
+            <Megnevezes>ESBE ALF131 motor 0-</Megnevezes>
+            <Devizaar>221</Devizaar>
+            <T218252222_0004>EUR</T218252222_0004>
+            <Arfolyam>393,91</Arfolyam>
+            <Tomeg>2,06</Tomeg>
+            <Mennyiseg>2</Mennyiseg>
+            <Szamla_osszeg>87157</Szamla_osszeg>
+            <Stat_osszeg>87157</Stat_osszeg>
+        </Item>
+        <Item>
+            <T218201990_0000>1</T218201990_0000>
+            <T218201990_0001>85011091</T218201990_0001>
+            <T218201990_0002>11</T218201990_0002>
+            <T218201990_0005>DE</T218201990_0005>
+            <T218201990_0006>IT</T218201990_0006>
+            <T218201990_0007>DE162855631 </T218201990_0007>
+            <T218235478_0006>2</T218235478_0006>
+            <T218235478_0007>2</T218235478_0007>
+            <T218235478_0008>87157</T218235478_0008>
+            <T218235478_0009>87157</T218235478_0009>
+        </Item>
+        <Item>
+            <T218201990_0000>2</T218201990_0000>
+            <T218201990_0001>85011091</T218201990_0001>
+            <T218201990_0002>11</T218201990_0002>
+            <T218201990_0005>DE</T218201990_0005>
+            <T218201990_0006>SE</T218201990_0006>
+            <T218201990_0007>DE162855631 </T218201990_0007>
+            <T218201990_0008>Univerzális egyenáramú/váltóáramú motor,</T218201990_0008>
+        </Item>
+        <Item>
+            <Bizonylatszam>20-25/00266</Bizonylatszam>
+            <Cikkszam>2-1205-200-0</Cikkszam>
+            <Megnevezes>ESBE 95-2 motor 230V</Megnevezes>
+            <Devizaar>115</Devizaar>
+            <T218252222_0004>EUR</T218252222_0004>
+            <Arfolyam>394,34</Arfolyam>
+            <Tomeg>0,895</Tomeg>
+            <Mennyiseg>1</Mennyiseg>
+            <Szamla_osszeg>45523</Szamla_osszeg>
+            <Stat_osszeg>45523</Stat_osszeg>
+        </Item>
+        <Item>
+            <T218201990_0000>2</T218201990_0000>
+            <T218201990_0001>85011091</T218201990_0001>
+            <T218201990_0002>11</T218201990_0002>
+            <T218201990_0005>DE</T218201990_0005>
+            <T218201990_0006>SE</T218201990_0006>
+            <T218201990_0007>DE162855631 </T218201990_0007>
+            <T218235478_0006>0,895</T218235478_0006>
+            <T218235478_0007>1</T218235478_0007>
+            <T218235478_0008>45523</T218235478_0008>
+            <T218235478_0009>45523</T218235478_0009>
+        </Item>
+        <Item>
+            <T218235478_0006>2,955</T218235478_0006>
+            <T218235478_0007>3</T218235478_0007>
+            <T218235478_0008>132679</T218235478_0008>
+            <T218235478_0009>132679</T218235478_0009>
+        </Item>
+        <Item>
+            <Tomeg>2</Tomeg>
+            <Mennyiseg>2</Mennyiseg>
+            <Szamla_osszeg>87157</Szamla_osszeg>
+            <Stat_osszeg>87157</Stat_osszeg>
+            <Sor_>1</Sor_>
+            <Termek>85011091</Termek>
+            <Ugylet>11</Ugylet>
+            <Cel_tagall>DE</Cel_tagall>
+            <Szarm_o_>IT</Szarm_o_>
+            <Adoszam>DE162855631 </Adoszam>
+        </Item>
+        <Item>
+            <Tomeg>0,895</Tomeg>
+            <Mennyiseg>1</Mennyiseg>
+            <Szamla_osszeg>45523</Szamla_osszeg>
+            <Stat_osszeg>45523</Stat_osszeg>
+            <Sor_>2</Sor_>
+            <Termek>85011091</Termek>
+            <Ugylet>11</Ugylet>
+            <Cel_tagall>DE</Cel_tagall>
+            <Szarm_o_>SE</Szarm_o_>
+            <Adoszam>DE162855631 </Adoszam>
+        </Item>
+        <Item>
+            <T218235478_0006>2,955</T218235478_0006>
+            <T218235478_0007>3</T218235478_0007>
+            <T218235478_0008>132679</T218235478_0008>
+            <T218235478_0009>132679</T218235478_0009>
+        </Item>
+    </Items>
+</INTRASTAT_bevallas>

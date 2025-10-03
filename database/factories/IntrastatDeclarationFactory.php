@@ -16,7 +16,7 @@ final class IntrastatDeclarationFactory extends Factory
 {
     public function definition(): array
     {
-        $referenceDate = fake()->dateTimeBetween('-6 months', 'now');
+        $referenceDate = DateTimeImmutable::createFromMutable(fake()->dateTimeBetween('-6 months', 'now'));
         $direction = fake()->randomElement(IntrastatDirection::cases());
 
         return [
@@ -24,7 +24,7 @@ final class IntrastatDeclarationFactory extends Factory
             'direction' => $direction,
             'reference_year' => (int) $referenceDate->format('Y'),
             'reference_month' => (int) $referenceDate->format('m'),
-            'declaration_date' => fake()->dateTimeBetween($referenceDate, 'now'),
+            'declaration_date' => fake()->dateTimeBetween($referenceDate->format('Y-m-d'), 'now'),
             'submitted_at' => null,
             'submitted_by' => null,
             'total_invoice_value' => 0,

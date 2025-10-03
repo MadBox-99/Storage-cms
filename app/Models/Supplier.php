@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\CountryCode;
+use App\Enums\SupplierRating;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -20,6 +22,8 @@ final class Supplier extends Model
         'trade_name',
         'headquarters',
         'mailing_address',
+        'country_code',
+        'is_eu_member',
         'tax_number',
         'eu_tax_number',
         'company_registration_number',
@@ -43,12 +47,6 @@ final class Supplier extends Model
         return $this->hasMany(Order::class);
     }
 
-    // Helper methods
-    public function updateRating(string $rating): void
-    {
-        $this->update(['rating' => $rating]);
-    }
-
     public function hasCertification(string $type): bool
     {
         // TODO: Implement certification check
@@ -58,9 +56,12 @@ final class Supplier extends Model
     protected function casts(): array
     {
         return [
+            'country_code' => CountryCode::class,
+            'is_eu_member' => 'boolean',
             'is_active' => 'boolean',
             'headquarters' => 'array',
             'mailing_address' => 'array',
+            'rating' => SupplierRating::class,
         ];
     }
 }

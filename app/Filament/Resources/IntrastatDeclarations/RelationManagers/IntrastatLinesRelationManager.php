@@ -7,6 +7,7 @@ namespace App\Filament\Resources\IntrastatDeclarations\RelationManagers;
 use App\Enums\IntrastatDeliveryTerms;
 use App\Enums\IntrastatTransactionType;
 use App\Enums\IntrastatTransportMode;
+use App\Models\CnCode;
 use App\Models\Product;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -22,6 +23,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 final class IntrastatLinesRelationManager extends RelationManager
 {
@@ -67,11 +69,26 @@ final class IntrastatLinesRelationManager extends RelationManager
 
                         Group::make()
                             ->schema([
-                                TextInput::make('cn_code')
+                                Select::make('cn_code_id')
                                     ->label('CN kód')
-                                    ->required()
-                                    ->length(8)
-                                    ->placeholder('12345678'),
+                                    ->relationship('cnCode', 'code')
+                                    ->getOptionLabelFromRecordUsing(fn (CnCode $record) => "{$record->code} - {$record->description}")
+                                    ->searchable(['code', 'description'])
+                                    ->preload()
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, $set) {
+                                        if ($state) {
+                                            $cnCode = CnCode::find($state);
+                                            if ($cnCode) {
+                                                $set('cn_code', $cnCode->code);
+                                                $set('supplementary_unit', $cnCode->supplementary_unit);
+                                                if ($cnCode->standard_mass_kg) {
+                                                    $set('net_mass', $cnCode->standard_mass_kg);
+                                                }
+                                            }
+                                        }
+                                    })
+                                    ->required(),
 
                                 TextInput::make('quantity')
                                     ->label('Mennyiség')
@@ -188,10 +205,11 @@ final class IntrastatLinesRelationManager extends RelationManager
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('cn_code')
+                TextColumn::make('cnCode.code')
                     ->label('CN kód')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->description(fn (Model $record) => $record->cnCode?->description),
 
                 TextColumn::make('quantity')
                     ->label('Mennyiség')

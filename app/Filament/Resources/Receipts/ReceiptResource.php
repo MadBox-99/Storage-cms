@@ -24,7 +24,7 @@ final class ReceiptResource extends Resource
 {
     protected static ?string $model = Receipt::class;
 
-    protected static string|UnitEnum|null $navigationGroup = NavigationGroup::PURCHASING;
+    protected static string|UnitEnum|null $navigationGroup = NavigationGroup::SALES;
 
     public static function form(Schema $schema): Schema
     {

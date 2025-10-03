@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Stocks\Schemas;
 
+use App\Enums\StockStatus;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
-class StockForm
+final class StockForm
 {
     public static function configure(Schema $schema): Schema
     {
@@ -36,9 +39,18 @@ class StockForm
                     ->default(0),
                 Select::make('batch_id')
                     ->relationship('batch', 'id'),
-                TextInput::make('status')
+                Select::make('status')
+                    ->options(StockStatus::class)
+                    ->default(StockStatus::IN_STOCK)
+                    ->required(),
+                TextInput::make('unit_cost')
                     ->required()
-                    ->default('AVAILABLE'),
+                    ->numeric()
+                    ->default(0.0),
+                TextInput::make('total_value')
+                    ->required()
+                    ->numeric()
+                    ->default(0.0),
             ]);
     }
 }

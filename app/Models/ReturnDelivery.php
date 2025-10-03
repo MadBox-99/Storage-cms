@@ -23,8 +23,6 @@ final class ReturnDelivery extends Model
         'return_number',
         'type',
         'order_id',
-        'customer_id',
-        'supplier_id',
         'warehouse_id',
         'processed_by',
         'return_date',
@@ -39,16 +37,6 @@ final class ReturnDelivery extends Model
         return $this->belongsTo(Order::class);
     }
 
-    public function customer(): BelongsTo
-    {
-        return $this->belongsTo(Customer::class);
-    }
-
-    public function supplier(): BelongsTo
-    {
-        return $this->belongsTo(Supplier::class);
-    }
-
     public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class);
@@ -59,18 +47,18 @@ final class ReturnDelivery extends Model
         return $this->belongsTo(Employee::class, 'processed_by');
     }
 
-    public function returnLines(): HasMany
+    public function returnDeliveryLines(): HasMany
     {
-        return $this->hasMany(ReturnLine::class);
+        return $this->hasMany(ReturnDeliveryLine::class);
     }
 
-    public function addLine(ReturnLine $line): void
+    public function addLine(ReturnDeliveryLine $line): void
     {
-        $this->returnLines()->save($line);
+        $this->returnDeliveryLines()->save($line);
         $this->refreshTotal();
     }
 
-    public function removeLine(ReturnLine $line): void
+    public function removeLine(ReturnDeliveryLine $line): void
     {
         $line->delete();
         $this->refreshTotal();
@@ -78,7 +66,7 @@ final class ReturnDelivery extends Model
 
     public function calculateTotal(): float
     {
-        return $this->returnLines->sum(function ($line): int|float {
+        return $this->returnDeliveryLines->sum(function ($line): int|float {
             return $line->quantity * $line->unit_price;
         });
     }
@@ -106,7 +94,7 @@ final class ReturnDelivery extends Model
     public function restock(): void
     {
         DB::transaction(function (): void {
-            foreach ($this->returnLines as $line) {
+            foreach ($this->returnDeliveryLines as $line) {
                 if ($line->canBeRestocked()) {
                     $stock = Stock::query()->firstOrCreate(
                         [

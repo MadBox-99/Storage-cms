@@ -23,7 +23,6 @@ return new class() extends Migration
             $table->date('inventory_date');
             $table->string('status', 50)->default('IN_PROGRESS');
             $table->string('type', 50);
-            $table->decimal('variance_value', 10, 2)->default(0);
             $table->string('notes')->nullable();
             $table->timestamps();
             $table->softDeletes();

@@ -50,12 +50,12 @@ final class ReturnDeliveryInfolist
                             ->placeholder('-')
                             ->visible(fn ($record) => $record->isCustomerReturn()),
 
-                        TextEntry::make('customer.name')
+                        TextEntry::make('order.customer.name')
                             ->label('Customer')
                             ->placeholder('-')
                             ->visible(fn ($record) => $record->isCustomerReturn()),
 
-                        TextEntry::make('supplier.name')
+                        TextEntry::make('order.supplier.company_name')
                             ->label('Supplier')
                             ->placeholder('-')
                             ->visible(fn ($record) => $record->isSupplierReturn()),
@@ -65,7 +65,7 @@ final class ReturnDeliveryInfolist
 
                 Section::make('Return Items')
                     ->schema([
-                        RepeatableEntry::make('returnLines')
+                        RepeatableEntry::make('returnDeliveryLines')
                             ->label('')
                             ->schema([
                                 TextEntry::make('product.name')

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-use Filament\Support\Concerns\HasColor;
+use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
 enum InventoryStatus: string implements HasColor, HasLabel
@@ -26,7 +26,7 @@ enum InventoryStatus: string implements HasColor, HasLabel
         };
     }
 
-    public function getColor(): string
+    public function getColor(): string|array|null
     {
         return match ($this) {
             self::DRAFT => 'gray',

@@ -1,7 +1,15 @@
 # INTRASTAT Adatszolgáltatás Elkészítési Lépései
 
 ## 🎯 Cél
-A KSH (Központi Statisztikai Hivatal) felé történő INTRASTAT adatszolgáltatás automatizált elkészítése a rendelések alapján.
+A KSH (Központi Statisztikai Hivatal) felé történő INTRASTAT adatszolgáltatás automatizált elkészítése a rendelések alapján, KSH-Elektra iFORM rendszerrel kompatibilis formátumban.
+
+## ⚠️ Fontos Információk
+- **Beküldési rendszer**: KSH-Elektra (https://elektra.ksh.hu)
+- **XML formátum**: iFORM szabvány (http://iform-html.kdiv.hu/schemas/form)
+- **OSAP kódok**:
+  - OSAP 2010: Intrastat Kiszállítás (Dispatch)
+  - OSAP 2012: Intrastat Beérkezés (Arrival)
+- **Határidő**: Tárgyhónapot követő hónap 12. napja
 
 ---
 
@@ -131,88 +139,78 @@ $declaration->calculateTotals();
 
 ## 📤 4. XML Export Generálása
 
-### 4.1 KSH XML Struktúra
+### 4.1 iFORM XML Export (KSH-Elektra feltöltéshez)
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<INTRASTAT>
-  <HEADER>
-    <PSI_ID>12345678-2-42</PSI_ID>              <!-- Adószám -->
-    <REFERENCE_PERIOD>202501</REFERENCE_PERIOD>  <!-- YYYYMM -->
-    <FLOW_CODE>A</FLOW_CODE>                    <!-- A=Arrival, D=Dispatch -->
-    <DECLARATION_DATE>2025-02-10</DECLARATION_DATE>
-    <CURRENCY_CODE>HUF</CURRENCY_CODE>
-  </HEADER>
-
-  <ITEMS>
-    <ITEM>
-      <LINE_NUMBER>1</LINE_NUMBER>
-      <CN_CODE>12345678</CN_CODE>
-      <COUNTRY_CODE>DE</COUNTRY_CODE>
-      <NATURE_OF_TRANSACTION>11</NATURE_OF_TRANSACTION>
-      <MODE_OF_TRANSPORT>3</MODE_OF_TRANSPORT>
-      <DELIVERY_TERMS>EXW</DELIVERY_TERMS>
-      <STATISTICAL_VALUE>500000</STATISTICAL_VALUE>
-      <NET_MASS>125.500</NET_MASS>
-      <SUPPLEMENTARY_UNIT></SUPPLEMENTARY_UNIT>
-      <SUPPLEMENTARY_QUANTITY></SUPPLEMENTARY_QUANTITY>
-    </ITEM>
-    <!-- További tételek... -->
-  </ITEMS>
-
-  <SUMMARY>
-    <TOTAL_LINES>15</TOTAL_LINES>
-    <TOTAL_STATISTICAL_VALUE>7500000</TOTAL_STATISTICAL_VALUE>
-    <TOTAL_NET_MASS>1875.250</TOTAL_NET_MASS>
-  </SUMMARY>
-</INTRASTAT>
-```
-
-### 4.2 Export Implementáció
+A hivatalos KSH-Elektra rendszerhez iFORM kompatibilis XML-t kell generálni:
 
 ```php
-public function exportToXml(IntrastatDeclaration $declaration): string
-{
-    $xml = new \SimpleXMLElement('<INTRASTAT/>');
-
-    // Header
-    $header = $xml->addChild('HEADER');
-    $header->addChild('PSI_ID', config('app.tax_number'));
-    $header->addChild('REFERENCE_PERIOD', $declaration->reference_year . str_pad($declaration->reference_month, 2, '0', STR_PAD_LEFT));
-    $header->addChild('FLOW_CODE', $declaration->direction === IntrastatDirection::ARRIVAL ? 'A' : 'D');
-    $header->addChild('DECLARATION_DATE', $declaration->declaration_date->format('Y-m-d'));
-    $header->addChild('CURRENCY_CODE', 'HUF');
-
-    // Items
-    $items = $xml->addChild('ITEMS');
-    $lineNumber = 1;
-
-    foreach ($declaration->intrastatLines as $line) {
-        $item = $items->addChild('ITEM');
-        $item->addChild('LINE_NUMBER', $lineNumber++);
-        $item->addChild('CN_CODE', $line->cn_code);
-        $item->addChild('COUNTRY_CODE', $line->country_of_consignment);
-        $item->addChild('NATURE_OF_TRANSACTION', $line->transaction_type->value);
-        $item->addChild('MODE_OF_TRANSPORT', $line->transport_mode->value);
-        $item->addChild('DELIVERY_TERMS', $line->delivery_terms->value);
-        $item->addChild('STATISTICAL_VALUE', (int) $line->statistical_value);
-        $item->addChild('NET_MASS', number_format($line->net_mass, 3, '.', ''));
-
-        if ($line->supplementary_unit) {
-            $item->addChild('SUPPLEMENTARY_UNIT', $line->supplementary_unit);
-            $item->addChild('SUPPLEMENTARY_QUANTITY', $line->supplementary_quantity);
-        }
-    }
-
-    // Summary
-    $summary = $xml->addChild('SUMMARY');
-    $summary->addChild('TOTAL_LINES', $declaration->intrastatLines->count());
-    $summary->addChild('TOTAL_STATISTICAL_VALUE', (int) $declaration->total_statistical_value);
-    $summary->addChild('TOTAL_NET_MASS', number_format($declaration->total_net_mass, 3, '.', ''));
-
-    return $xml->asXML();
-}
+$xml = $intrastatService->exportToIFormXml($declaration);
+file_put_contents('intrastat_2025_01.xml', $xml);
 ```
+
+**iFORM XML Struktúra (Kiszállítás - OSAP 2010):**
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://iform-html.kdiv.hu/schemas/form">
+  <keys>
+    <key>
+      <name>iformVersion</name>
+      <value>1.13.7</value>
+    </key>
+  </keys>
+  <templateKeys>
+    <key><name>OSAP</name><value>2010</value></key>
+    <key><name>EV</name><value>2025</value></key>
+    <key><name>HO</name><value>1</value></key>
+    <key><name>VARIANT</name><value>1</value></key>
+    <key><name>MUTATION</name><value>0</value></key>
+  </templateKeys>
+  <chapter s="P">
+    <data s="P"><identifier>MHO</identifier><value>01</value></data>
+    <data s="P"><identifier>MEV</identifier><value>2025</value></data>
+    <data s="P"><identifier>ADOSZAM</identifier><value>12345678-2-42</value></data>
+  </chapter>
+  <chapter s="P">
+    <data s="P"><identifier>LAP_SUM</identifier><value>1</value></data>
+    <data s="P"><identifier>LAP_KGM_SUM</identifier><value>20.000</value></data>
+    <table name="Termek">
+      <row>
+        <data s="P"><identifier>T_SORSZ</identifier><value>1</value></data>
+        <data s="P"><identifier>TEKOD</identifier><value>84821010</value></data>
+        <data s="P"><identifier>RTA</identifier><value>11</value></data>
+        <data s="P"><identifier>SZAORSZ</identifier><value>AT</value></data>
+        <data s="P"><identifier>KGM</identifier><value>20.000</value></data>
+        <data s="P"><identifier>SZAOSSZ</identifier><value>360000</value></data>
+        <data s="P"><identifier>SZALMOD</identifier><value>3</value></data>
+        <data s="P"><identifier>SZALFEL</identifier><value>FOB</value></data>
+      </row>
+    </table>
+  </chapter>
+</form>
+```
+
+**Mezők magyarázata (Kiszállítás):**
+- `OSAP`: 2010 = Kiszállítás, 2012 = Beérkezés
+- `TEKOD`: CN kód (8 jegyű)
+- `RTA`: Ügylet jellege (Kiszállítás)
+- `FTA`: Ügylet jellege (Beérkezés)
+- `SZAORSZ`: Ország kód
+- `KGM`: Nettó tömeg (kg, 3 tizedesjegy)
+- `SZAOSSZ`: Statisztikai érték (Kiszállítás)
+- `STAERT`: Statisztikai érték (Beérkezés)
+- `SZALMOD`: Szállítási mód
+- `SZALFEL`: Szállítási feltétel
+- `SZSZAORSZ`: Származási ország (csak Beérkezésnél)
+
+### 4.2 Egyszerűsített XML Export (Dokumentációhoz)
+
+Belső használatra vagy dokumentációs célra egyszerűsített XML is elérhető:
+
+```php
+$xml = $intrastatService->exportToXml($declaration);
+```
+
+Ez egy tisztább, olvashatóbb formátumot generál, de **nem kompatibilis** a KSH-Elektra rendszerrel.
 
 ---
 
@@ -241,17 +239,37 @@ enum IntrastatStatus: string
 5. REJECTED → Hibajavítás szükséges → vissza DRAFT-ra
 ```
 
-### 5.3 Beadási Folyamat
+### 5.3 Beadási Folyamat (KSH-Elektra)
 
+**1. XML Generálás**
+```php
+$declaration = $intrastatService->generateDeclarationForPeriod(2025, 1, IntrastatDirection::DISPATCH);
+$xml = $intrastatService->exportToIFormXml($declaration);
+file_put_contents(storage_path('exports/intrastat_2025_01_dispatch.xml'), $xml);
 ```
-1. XML exportálása
-2. KSH webes felület: https://www.ksh.hu/intrastat_elektronikus_adatszolgaltatas
-3. Bejelentkezés
-4. XML feltöltése
-5. Validáció eredmény fogadása
-6. Ha OK → státusz: SUBMITTED
-7. Visszaigazolás → státusz: ACCEPTED
-```
+
+**2. Bejelentkezés a KSH-Elektra rendszerbe**
+- URL: https://elektra.ksh.hu/asp/bejelentkezes.html
+- Belépés cégkapuval vagy egyéb azonosítóval
+
+**3. XML Feltöltés**
+- Adatgyűjtés kiválasztása: OSAP 2010 (Kiszállítás) vagy OSAP 2012 (Beérkezés)
+- Időszak megadása (év, hónap)
+- XML fájl feltöltése
+
+**4. Validáció**
+- A rendszer automatikusan ellenőrzi az XML-t
+- Hibák esetén javítás szükséges
+- Sikeres validáció esetén: véglegesítés
+
+**5. Véglegesítés és Beküldés**
+- Véglegesítés gombra kattintás
+- A KSH rendszer visszaigazolást ad
+- Státusz frissítése: SUBMITTED
+
+**Alternatív módszer:**
+- KSH CSV to XML konverter: https://elektra.ksh.hu/sugo/csv2xml/csv2xml.html
+- Először CSV export, majd konvertálás iFORM XML-re
 
 ---
 

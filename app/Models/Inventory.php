@@ -25,7 +25,6 @@ final class Inventory extends Model
         'inventory_date',
         'status',
         'type',
-        'variance_value',
         'notes',
     ];
 
@@ -54,15 +53,6 @@ final class Inventory extends Model
     {
         $line->delete();
         $this->calculateVariance();
-    }
-
-    public function calculateVariance(): void
-    {
-        $variance = $this->inventoryLines->sum(function ($line): int|float {
-            return ($line->actual_quantity - $line->system_quantity) * $line->unit_cost;
-        });
-
-        $this->update(['variance_value' => $variance]);
     }
 
     public function complete(): void
@@ -101,23 +91,13 @@ final class Inventory extends Model
         });
     }
 
-    public function hasVariances(): bool
-    {
-        return $this->variance_value !== 0;
-    }
-
-    public function getVarianceCount(): int
-    {
-        return $this->inventoryLines->where('actual_quantity', '!=', 'system_quantity')->count();
-    }
-
     protected function casts(): array
     {
         return [
             'status' => InventoryStatus::class,
             'type' => InventoryType::class,
             'inventory_date' => 'date',
-            'variance_value' => 'decimal:2',
+
         ];
     }
 }

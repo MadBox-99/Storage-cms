@@ -35,9 +35,6 @@ final class InventoriesTable
                 TextColumn::make('type')
                     ->badge()
                     ->searchable(),
-                TextColumn::make('variance_value')
-                    ->numeric()
-                    ->sortable(),
                 TextColumn::make('notes')
                     ->searchable(),
                 TextColumn::make('created_at')

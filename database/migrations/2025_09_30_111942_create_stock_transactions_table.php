@@ -18,7 +18,7 @@ return new class() extends Migration
             $table->foreignIdFor(Stock::class)->constrained('stocks')->cascadeOnDelete();
             $table->foreignIdFor(Product::class)->constrained('products');
             $table->foreignIdFor(Warehouse::class)->constrained('warehouses');
-            $table->string('type'); // 'in' or 'out'
+            $table->string('type'); // StockTransactionType::class enum
             $table->integer('quantity');
             $table->decimal('unit_cost', 15, 4);
             $table->decimal('total_cost', 15, 2);

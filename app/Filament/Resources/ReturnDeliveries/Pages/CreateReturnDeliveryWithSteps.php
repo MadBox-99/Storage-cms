@@ -9,6 +9,7 @@ use App\Enums\ReturnReason;
 use App\Enums\ReturnStatus;
 use App\Enums\ReturnType;
 use App\Filament\Resources\ReturnDeliveries\ReturnDeliveryResource;
+use App\Models\Order;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -16,6 +17,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Wizard\Step;
 
 final class CreateReturnDeliveryWithSteps extends CreateRecord
@@ -68,21 +70,30 @@ final class CreateReturnDeliveryWithSteps extends CreateRecord
                 ->description('Customer, supplier, or order information')
                 ->schema([
                     Select::make('order_id')
-                        ->relationship('order', 'order_number')
+                        ->relationship('order', 'order_number', modifyQueryUsing: function ($query) {
+                            $query->where('status', '!=', 'cancelled');
+                        })
                         ->label('Related Order')
+                        ->afterStateUpdated(function (Set $set, int $state) {
+                            $order = Order::find($state);
+                            dump($order);
+                            $set('customer_id', $order?->customer_id);
+                            $set('supplier_id', $order?->supplier_id);
+                        })
                         ->searchable()
                         ->preload()
+                        ->live()
                         ->visible(fn (Get $get) => $get('type') === ReturnType::CUSTOMER_RETURN),
 
                     Select::make('customer_id')
-                        ->relationship('customer', 'name')
+                        ->relationship('order.customer', 'name')
                         ->label('Customer')
                         ->searchable()
                         ->preload()
                         ->visible(fn (Get $get) => $get('type') === ReturnType::CUSTOMER_RETURN),
 
                     Select::make('supplier_id')
-                        ->relationship('supplier', 'company_name')
+                        ->relationship('order.supplier', 'company_name')
                         ->label('Supplier')
                         ->searchable()
                         ->preload()
@@ -118,7 +129,7 @@ final class CreateReturnDeliveryWithSteps extends CreateRecord
             Step::make('Return Items')
                 ->description('Add products to return')
                 ->schema([
-                    Repeater::make('returnLines')
+                    Repeater::make('returnDeliveryLines')
                         ->relationship()
                         ->schema([
                             Select::make('product_id')

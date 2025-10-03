@@ -56,8 +56,7 @@ final class ProductInfolist
                 Section::make('Measurements')
                     ->schema([
                         TextEntry::make('unit_of_measure')
-                            ->label('Unit of Measure')
-                            ->formatStateUsing(fn ($state) => $state?->label().' ('.$state?->abbreviation().')'),
+                            ->label('Unit of Measure'),
                         TextEntry::make('weight')
                             ->label('Weight')
                             ->numeric()

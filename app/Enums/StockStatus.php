@@ -18,6 +18,9 @@ enum StockStatus: string implements HasColor, HasLabel
     case EXPIRED = 'expired';
     case COMPLETED = 'completed';
     case CANCELLED = 'cancelled';
+    case LOW_STOCK = 'low_stock';
+    case OUT_OF_STOCK = 'out_of_stock';
+    case IN_STOCK = 'in_stock';
 
     public function getLabel(): string|Htmlable|null
     {
@@ -30,6 +33,9 @@ enum StockStatus: string implements HasColor, HasLabel
             self::EXPIRED => __('Expired'),
             self::COMPLETED => __('Completed'),
             self::CANCELLED => __('Cancelled'),
+            self::LOW_STOCK => __('Low Stock'),
+            self::OUT_OF_STOCK => __('Out of Stock'),
+            self::IN_STOCK => __('In Stock'),
         };
     }
 
@@ -42,6 +48,11 @@ enum StockStatus: string implements HasColor, HasLabel
             self::QUARANTINE => 'purple',
             self::IN_TRANSIT => 'yellow',
             self::EXPIRED => 'red',
+            self::COMPLETED => 'gray',
+            self::CANCELLED => 'gray',
+            self::LOW_STOCK => 'yellow',
+            self::OUT_OF_STOCK => 'red',
+            self::IN_STOCK => 'green',
         };
     }
 
@@ -49,6 +60,7 @@ enum StockStatus: string implements HasColor, HasLabel
     {
         return match ($this) {
             self::AVAILABLE => true,
+            self::IN_STOCK => true,
             default => false,
         };
     }

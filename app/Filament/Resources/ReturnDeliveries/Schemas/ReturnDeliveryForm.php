@@ -65,14 +65,14 @@ final class ReturnDeliveryForm
                             ->visible(fn (Get $get) => $get('type') === ReturnType::CUSTOMER_RETURN),
 
                         Select::make('customer_id')
-                            ->relationship('customer', 'name')
+                            ->relationship('order.customer', 'name')
                             ->label('Customer')
                             ->searchable()
                             ->preload()
                             ->visible(fn (Get $get) => $get('type') === ReturnType::CUSTOMER_RETURN),
 
                         Select::make('supplier_id')
-                            ->relationship('supplier', 'company_name')
+                            ->relationship('order.supplier', 'company_name')
                             ->label('Supplier')
                             ->searchable()
                             ->preload()
@@ -106,7 +106,7 @@ final class ReturnDeliveryForm
 
                 Section::make('Return Items')
                     ->schema([
-                        Repeater::make('returnLines')
+                        Repeater::make('returnDeliveryLines')
                             ->relationship()
                             ->schema([
                                 Select::make('product_id')

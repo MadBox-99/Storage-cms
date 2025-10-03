@@ -15,7 +15,7 @@ return new class() extends Migration
      */
     public function up(): void
     {
-        Schema::create('return_lines', function (Blueprint $table) {
+        Schema::create('return_delivery_lines', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(ReturnDelivery::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Product::class)->constrained();
@@ -37,6 +37,6 @@ return new class() extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('return_lines');
+        Schema::dropIfExists('return_delivery_lines');
     }
 };

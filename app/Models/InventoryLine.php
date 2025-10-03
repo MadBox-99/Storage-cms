@@ -76,6 +76,7 @@ final class InventoryLine extends Model
             'actual_quantity' => 'integer',
             'unit_cost' => 'decimal:2',
             'expiry_date' => 'date',
+            'condition' => DiscrepancyType::class,
         ];
     }
 }

@@ -8,6 +8,7 @@ use App\Enums\ProductStatus;
 use App\Enums\UnitType;
 use App\Models\Category;
 use App\Models\Supplier;
+use Bezhanov\Faker\Provider\Commerce;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -22,9 +23,11 @@ final class ProductFactory extends Factory
      */
     public function definition(): array
     {
+        fake()->addProvider(new Commerce(fake()));
+
         return [
             'sku' => 'SKU-'.fake()->unique()->numerify('#####'),
-            'name' => fake()->words(3, true),
+            'name' => fake()->productName,
             'description' => fake()->sentence(),
             'barcode' => fake()->unique()->ean13(),
             'unit_of_measure' => fake()->randomElement(UnitType::class),

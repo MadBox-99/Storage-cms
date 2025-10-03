@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\IntrastatOutbounds\Tables;
 
+use App\Enums\IntrastatStatus;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ViewAction;
@@ -33,10 +34,10 @@ final class IntrastatOutboundsTable
                 TextColumn::make('status')
                     ->label('Státusz')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'DRAFT' => 'gray',
-                        'READY' => 'success',
-                        'SUBMITTED' => 'info',
+                    ->color(fn (IntrastatStatus $state): string => match ($state) {
+                        IntrastatStatus::DRAFT => 'gray',
+                        IntrastatStatus::READY => 'success',
+                        IntrastatStatus::SUBMITTED => 'info',
                         default => 'warning',
                     }),
                 TextColumn::make('total_invoice_value')

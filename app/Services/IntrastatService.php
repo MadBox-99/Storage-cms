@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\CountryCode;
 use App\Enums\IntrastatDeliveryTerms;
 use App\Enums\IntrastatDirection;
 use App\Enums\IntrastatStatus;
@@ -51,6 +52,102 @@ final class IntrastatService
         });
     }
 
+    /**
+     * Export declaration to KSH iFORM-compliant XML format for KSH-Elektra submission
+     */
+    public function exportToIFormXml(IntrastatDeclaration $declaration): string
+    {
+        // Create iFORM-compliant XML structure
+        $xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><form xmlns="http://iform-html.kdiv.hu/schemas/form"></form>');
+
+        // Add keys (version information)
+        $keys = $xml->addChild('keys');
+        $this->addKey($keys, 'iformVersion', '1.13.7');
+
+        // Add template keys (OSAP questionnaire identifiers)
+        $templateKeys = $xml->addChild('templateKeys');
+        $osapCode = $declaration->direction === IntrastatDirection::ARRIVAL ? '2012' : '2010';
+        $this->addKey($templateKeys, 'OSAP', $osapCode);
+        $this->addKey($templateKeys, 'EV', (string) $declaration->reference_year);
+        $this->addKey($templateKeys, 'HO', (string) $declaration->reference_month);
+        $this->addKey($templateKeys, 'VARIANT', '1');
+        $this->addKey($templateKeys, 'MUTATION', '0');
+
+        // Chapter 0: Metadata and contact information
+        $chapter0 = $xml->addChild('chapter');
+        $chapter0->addAttribute('s', 'P');
+        $this->addData($chapter0, 'MHO', sprintf('%02d', $declaration->reference_month));
+        $this->addData($chapter0, 'MEV', (string) $declaration->reference_year);
+        $this->addData($chapter0, 'ADOSZAM', config('app.tax_number', '12345678-2-42'));
+
+        // Chapter 1: Line items table and summary
+        $chapter1 = $xml->addChild('chapter');
+        $chapter1->addAttribute('s', 'P');
+
+        // Add summary data
+        $this->addData($chapter1, 'LAP_SUM', (string) $declaration->intrastatLines->count());
+        $this->addData($chapter1, 'LAP_KGM_SUM', number_format((float) $declaration->total_net_mass, 3, '.', ''));
+
+        // Add table with line items
+        $table = $chapter1->addChild('table');
+        $table->addAttribute('name', 'Termek');
+
+        foreach ($declaration->intrastatLines as $index => $line) {
+            $row = $table->addChild('row');
+
+            // Line number
+            $this->addData($row, 'T_SORSZ', (string) ($index + 1));
+
+            // CN code
+            $this->addData($row, 'TEKOD', $line->cn_code);
+
+            // Transaction type (RTA for dispatch, FTA for arrival)
+            $transactionField = $declaration->direction === IntrastatDirection::ARRIVAL ? 'FTA' : 'RTA';
+            $this->addData($row, $transactionField, $line->transaction_type->value);
+
+            // Country code
+            $countryCode = $declaration->direction === IntrastatDirection::ARRIVAL
+                ? $line->country_of_consignment
+                : $line->country_of_destination;
+            $this->addData($row, 'SZAORSZ', $countryCode);
+
+            // Net mass
+            $this->addData($row, 'KGM', number_format((float) $line->net_mass, 3, '.', ''));
+
+            // Statistical value (SZAOSSZ for dispatch, STAERT for arrival)
+            $valueField = $declaration->direction === IntrastatDirection::ARRIVAL ? 'STAERT' : 'SZAOSSZ';
+            $this->addData($row, $valueField, (string) (int) $line->statistical_value);
+
+            // Supplementary quantity if exists
+            if ($line->supplementary_quantity) {
+                $this->addData($row, 'KIEGME', number_format((float) $line->supplementary_quantity, 2, '.', ''));
+                $this->addData($row, 'UKOD', '11'); // Unit code - should be mapped properly
+            }
+
+            // Transport mode
+            $this->addData($row, 'SZALMOD', $line->transport_mode->value);
+
+            // Delivery terms
+            $this->addData($row, 'SZALFEL', $line->delivery_terms->value);
+
+            // Country of origin for arrivals
+            if ($declaration->direction === IntrastatDirection::ARRIVAL && $line->country_of_origin) {
+                $this->addData($row, 'SZSZAORSZ', $line->country_of_origin);
+            }
+        }
+
+        // Format XML with proper indentation
+        $dom = new DOMDocument('1.0', 'UTF-8');
+        $dom->preserveWhiteSpace = false;
+        $dom->formatOutput = true;
+        $dom->loadXML($xml->asXML());
+
+        return $dom->saveXML();
+    }
+
+    /**
+     * Export declaration to simplified XML format (for documentation/internal use)
+     */
     public function exportToXml(IntrastatDeclaration $declaration): string
     {
         $xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><INTRASTAT></INTRASTAT>');
@@ -237,7 +334,7 @@ final class IntrastatService
 
             // For purchases (arrival), check if supplier is from EU
             if ($direction === IntrastatDirection::ARRIVAL) {
-                if (! $order->supplier || ! $order->supplier->is_eu_member || $order->supplier->country_code === 'HU') {
+                if (! $order->supplier || ! $order->supplier->is_eu_member || $order->supplier->country_code === CountryCode::HU) {
                     continue;
                 }
             }
@@ -254,6 +351,8 @@ final class IntrastatService
                 ? $product->net_weight_kg * $orderLine->quantity
                 : 0;
 
+            $lineTotal = $orderLine->calculateSubtotal();
+
             IntrastatLine::create([
                 'intrastat_declaration_id' => $declaration->id,
                 'order_id' => $order->id,
@@ -264,8 +363,8 @@ final class IntrastatService
                 'net_mass' => $netMass,
                 'supplementary_unit' => $product->supplementary_unit,
                 'supplementary_quantity' => $product->supplementary_unit ? $orderLine->quantity : null,
-                'invoice_value' => $orderLine->line_total,
-                'statistical_value' => $orderLine->line_total, // Simplified: same as invoice value
+                'invoice_value' => $lineTotal,
+                'statistical_value' => $lineTotal, // Simplified: same as invoice value
                 'country_of_origin' => $product->country_of_origin ?? 'HU',
                 'country_of_consignment' => $direction === IntrastatDirection::ARRIVAL
                     ? ($order->supplier?->country_code ?? 'HU')
@@ -279,5 +378,20 @@ final class IntrastatService
                 'description' => $product->name,
             ]);
         }
+    }
+
+    private function addKey(SimpleXMLElement $parent, string $name, string $value): void
+    {
+        $key = $parent->addChild('key');
+        $key->addChild('name', $name);
+        $key->addChild('value', $value);
+    }
+
+    private function addData(SimpleXMLElement $parent, string $identifier, string $value): void
+    {
+        $data = $parent->addChild('data');
+        $data->addAttribute('s', 'P');
+        $data->addChild('identifier', $identifier);
+        $data->addChild('value', $value);
     }
 }

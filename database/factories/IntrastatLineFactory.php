@@ -7,6 +7,7 @@ namespace Database\Factories;
 use App\Enums\IntrastatDeliveryTerms;
 use App\Enums\IntrastatTransactionType;
 use App\Enums\IntrastatTransportMode;
+use App\Models\CnCode;
 use App\Models\IntrastatDeclaration;
 use App\Models\Order;
 use App\Models\Product;
@@ -23,16 +24,18 @@ final class IntrastatLineFactory extends Factory
         $quantity = fake()->randomFloat(2, 1, 100);
         $unitPrice = fake()->randomFloat(2, 1000, 100000);
         $netMassPerUnit = fake()->randomFloat(3, 0.1, 50);
+        $cnCode = CnCode::factory()->create();
 
         return [
             'intrastat_declaration_id' => IntrastatDeclaration::factory(),
             'order_id' => Order::factory(),
             'product_id' => Product::factory(),
             'supplier_id' => Supplier::factory(),
-            'cn_code' => fake()->numerify('########'), // 8 digit CN code
+            'cn_code_id' => $cnCode->id,
+            'cn_code' => $cnCode->code,
             'quantity' => $quantity,
             'net_mass' => $quantity * $netMassPerUnit,
-            'supplementary_unit' => null,
+            'supplementary_unit' => $cnCode->supplementary_unit,
             'supplementary_quantity' => null,
             'invoice_value' => $quantity * $unitPrice,
             'statistical_value' => $quantity * $unitPrice,

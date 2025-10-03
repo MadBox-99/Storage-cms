@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Batches\Schemas;
 
+use App\Enums\QualityStatus;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -58,13 +59,8 @@ final class BatchForm
                             ->default(0),
                         Select::make('quality_status')
                             ->label('Quality Status / Minőségi Státusz')
-                            ->options([
-                                'PENDING_CHECK' => 'Pending Check',
-                                'APPROVED' => 'Approved',
-                                'REJECTED' => 'Rejected',
-                                'QUARANTINE' => 'Quarantine',
-                            ])
-                            ->default('PENDING_CHECK')
+                            ->options(QualityStatus::class)
+                            ->default(QualityStatus::PENDING_CHECK)
                             ->required(),
                     ])
                     ->columns(2),

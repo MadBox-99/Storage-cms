@@ -11,6 +11,8 @@ use App\Models\Stock;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\Warehouse;
+use BladeUI\Icons\Factory;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -29,16 +31,34 @@ final class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
         ]);
 
-        Product::factory()->count(10)->create();
+        $products = Product::factory()->count(10)->create();
+
         $manager = Employee::factory()->create([
             'warehouse_id' => null,
         ]);
-        Warehouse::factory()
+        $warehouses = Warehouse::factory()
             ->count(2)
             ->for($manager, 'manager')
-            ->has(Stock::factory()->count(5))
             ->has(Employee::factory()->count(3))
             ->create();
+
+        $stocks = Stock::factory()
+            ->count(10)
+            ->for($warehouses->get(0), 'warehouse')
+            ->state(new Sequence(
+                fn (Sequence $sequence): array => [
+                    'product_id' => $products->get($sequence->index)->id,
+                ]
+            ))->create();
+        $stocks = Stock::factory()
+            ->count(10)
+            ->for($warehouses->get(1), 'warehouse')
+            ->state(new Sequence(
+                fn (Sequence $sequence): array => [
+                    'product_id' => $products->get($sequence->index)->id,
+                ]
+            ))->create();
+
         Customer::factory()->count(10)->create();
 
         $this->call([
